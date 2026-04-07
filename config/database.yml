@@ -4,26 +4,37 @@ default: &default
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
 
 development:
-  <<: *default
-  database: bug_reports_development
+  primary:
+    <<: *default
+    database: bug_reports_development
+  queue:
+    <<: *default
+    database: bug_reports_development_queue
+    migrations_paths: db/queue_migrate
 
 test:
   <<: *default
   database: bug_reports_test
 
 production:
-  primary:
+  primary: &primary_production
     <<: *default
+    database: bug_reports_production
+    username: bug_reports
+    password: <%= ENV["BUG_REPORTS_DATABASE_PASSWORD"] %>
     url: <%= ENV["DATABASE_URL"] %>
   cache:
-    <<: *default
-    url: <%= ENV["CACHE_DATABASE_URL"] %>
+    <<: *primary_production
+    database: bug_reports_production_cache
     migrations_paths: db/cache_migrate
+    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_cache" } if ENV["DATABASE_URL"] %>
   queue:
-    <<: *default
-    url: <%= ENV["QUEUE_DATABASE_URL"] %>
+    <<: *primary_production
+    database: bug_reports_production_queue
     migrations_paths: db/queue_migrate
+    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_queue" } if ENV["DATABASE_URL"] %>
   cable:
-    <<: *default
-    url: <%= ENV["CABLE_DATABASE_URL"] %>
+    <<: *primary_production
+    database: bug_reports_production_cable
     migrations_paths: db/cable_migrate
+    url: <%= URI.parse(ENV["DATABASE_URL"]).tap { |url| url.path += "_cable" } if ENV["DATABASE_URL"] %>

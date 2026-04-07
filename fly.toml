@@ -13,8 +13,6 @@ console_command = '/rails/bin/rails console'
 [env]
   PORT = '8080'
   PRIMARY_REGION = "lhr"
-  SOLID_QUEUE_IN_PUMA = 'true'
-  RAILS_MAX_THREADS = "3"
 
 [processes]
   app = './bin/rails server -b 0.0.0.0 -p 8080'
