@@ -7,3 +7,5 @@ refhub: "Professional-Squash-Association/refhub"
 squashref: "Professional-Squash-Association/squashref"
 support: "Professional-Squash-Association/support"
 invoices: "Professional-Squash-Association/invoices"
+# TODO: Remove this later
+test: "Gazwai/octokit_test"
