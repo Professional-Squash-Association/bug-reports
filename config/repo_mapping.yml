@@ -1,7 +1,8 @@
 # Maps source app names to their GitHub repositories.
 # Update this file when a new PSA application is added.
 
-secure: "Professional-Squash-Association/secure"
+# secure: "Professional-Squash-Association/secure"
+secure: "Gazwai/octokit_test"
 dashboard: "Professional-Squash-Association/dashboard"
 refhub: "Professional-Squash-Association/refhub"
 squashref: "Professional-Squash-Association/squashref"

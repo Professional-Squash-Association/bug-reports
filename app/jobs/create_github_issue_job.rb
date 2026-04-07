@@ -31,7 +31,12 @@ class CreateGithubIssueJob < ApplicationJob
     parts << bug_report.description if bug_report.description.present?
     parts << "## Steps to Reproduce\n#{bug_report.steps_to_reproduce}" if bug_report.steps_to_reproduce.present?
     parts << "## Reporter\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
-    parts << "![screenshot](#{bug_report.image_url})" if bug_report.image_url.present?
+    if bug_report.image_url.present?
+      screenshots = bug_report.image_url.split(",").map.with_index(1) do |url, i|
+        "![screenshot-#{i}](#{url.strip})"
+      end
+      parts << "## Screenshots\n#{screenshots.join("\n")}"
+    end
     parts.join("\n\n")
   end
 
