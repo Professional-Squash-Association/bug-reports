@@ -1,0 +1,9 @@
+# Maps source app names to their GitHub repositories.
+# Update this file when a new PSA application is added.
+
+secure: "Professional-Squash-Association/secure"
+dashboard: "Professional-Squash-Association/dashboard"
+refhub: "Professional-Squash-Association/refhub"
+squashref: "Professional-Squash-Association/squashref"
+support: "Professional-Squash-Association/support"
+invoices: "Professional-Squash-Association/invoices"
