@@ -4,7 +4,7 @@ class CreateBugReports < ActiveRecord::Migration[8.1]
       t.string :title, null: false
       t.text :description
       t.text :steps_to_reproduce
-      t.string :severity, default: "medium"
+      t.string :severity, null: false
       t.string :source, null: false
       t.string :reporter_email, null: false
       t.string :reporter_name
