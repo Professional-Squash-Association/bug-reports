@@ -3,7 +3,7 @@
 # where an issue is created asynchronously.
 class BugReport < ApplicationRecord
   SEVERITIES = %w[low medium high critical].freeze
-  STATUSES = %w[pending created failed closed].freeze
+  STATUSES = %w[pending closed].freeze
 
   validates :title, presence: true
   validates :description, presence: true
@@ -11,6 +11,8 @@ class BugReport < ApplicationRecord
   validates :reporter_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :severity, inclusion: { in: SEVERITIES }
   validates :status, inclusion: { in: STATUSES }
+
+  # Absence of a github_issue_number indicates the GitHub issue was not successfully created
 
   # Resolves the GitHub repository for this report based on its source app
   def resolved_repo

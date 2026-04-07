@@ -20,12 +20,8 @@ class CreateGithubIssueJob < ApplicationJob
 
     bug_report.update!(
       github_issue_number: gh_issue.number,
-      github_issue_url: gh_issue.html_url,
-      status: "created"
+      github_issue_url: gh_issue.html_url
     )
-  rescue StandardError => e
-    bug_report&.update(status: "failed") if bug_report&.persisted? && !bug_report&.created?
-    raise e
   end
 
   private
