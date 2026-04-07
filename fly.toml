@@ -1,6 +1,5 @@
 # fly.toml - Bug Reports API
 # Centralised bug reporting service for PSA applications.
-# Uses SQLite with a persistent volume for storage.
 
 app = 'smm-bug-reports'
 primary_region = 'lhr'
@@ -42,7 +41,3 @@ console_command = '/rails/bin/rails console'
 
     [http_service.checks.headers]
       X-Forwarded-Proto = 'https'
-
-[mounts]
-  source = "bug_reports_data"
-  destination = "/rails/storage"
