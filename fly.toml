@@ -12,24 +12,26 @@ console_command = '/rails/bin/rails console'
 
 [env]
   PORT = '8080'
+  PRIMARY_REGION = "lhr"
   SOLID_QUEUE_IN_PUMA = 'true'
-  RAILS_MAX_THREADS = '3'
+  RAILS_MAX_THREADS = "3"
 
 [processes]
-  app = './bin/thrust ./bin/rails server -b 0.0.0.0 -p 8080'
+  app = './bin/rails server -b 0.0.0.0 -p 8080'
+  solidq = "bundle exec rake solid_queue:start"
 
 [http_service]
   internal_port = 8080
   force_https = true
   auto_stop_machines = "stop"
   auto_start_machines = true
-  min_machines_running = 1
+  min_machines_running = 2
   processes = ['app']
 
   [http_service.concurrency]
     type = "requests"
-    soft_limit = 25
-    hard_limit = 50
+    soft_limit = 50
+    hard_limit = 80
 
   [[http_service.checks]]
     interval = '10s'
@@ -38,6 +40,7 @@ console_command = '/rails/bin/rails console'
     method = 'GET'
     path = '/up'
     protocol = 'http'
+    tls_skip_verify = false
 
     [http_service.checks.headers]
       X-Forwarded-Proto = 'https'
