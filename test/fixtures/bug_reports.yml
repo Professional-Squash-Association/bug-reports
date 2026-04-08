@@ -1,27 +1,23 @@
-# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+pending_report:
+  title: Login button broken
+  description: The login button does not respond
+  severity: medium
+  source: secure
+  reporter_email: test@example.com
+  reporter_name: Test User
+  callback_url: https://secure.example.com/api/bug_report_updates
+  status: pending
+  github_repo: Gazwai/octokit_test
 
-one:
-  title: MyString
-  description: MyText
-  steps_to_reproduce: MyText
-  severity: MyString
-  source: MyString
-  reporter_email: MyString
-  reporter_name: MyString
-  status: MyString
-  github_issue_url: MyString
-  github_issue_number: 1
-  github_repo: MyString
-
-two:
-  title: MyString
-  description: MyText
-  steps_to_reproduce: MyText
-  severity: MyString
-  source: MyString
-  reporter_email: MyString
-  reporter_name: MyString
-  status: MyString
-  github_issue_url: MyString
-  github_issue_number: 1
-  github_repo: MyString
+closed_report:
+  title: Old bug
+  description: This was already fixed
+  severity: low
+  source: secure
+  reporter_email: test@example.com
+  reporter_name: Test User
+  callback_url: https://secure.example.com/api/bug_report_updates
+  status: closed
+  github_repo: Gazwai/octokit_test
+  github_issue_number: 42
+  github_issue_url: https://github.com/Gazwai/octokit_test/issues/42
