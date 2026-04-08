@@ -27,16 +27,10 @@ class CreateGithubIssueJob < ApplicationJob
   private
 
   def build_issue_body(bug_report)
-    parts = []
-    parts << bug_report.description if bug_report.description.present?
-    parts << "## Reported by\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
-    parts.join("\n\n")
+    "#{bug_report.description}\n\n## Reported by\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
   end
 
   def build_labels(bug_report)
-    labels = [ "bug-report", "bug" ]
-    labels << "severity:#{bug_report.severity}" if bug_report.severity.present?
-    labels << "source:#{bug_report.source}" if bug_report.source.present?
-    labels
+    [ "bug-report", "bug", "severity:#{bug_report.severity}", "source:#{bug_report.source}" ]
   end
 end

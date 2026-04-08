@@ -11,7 +11,6 @@ class NotifySourceAppJob < ApplicationJob
 
   def perform(bug_report_id)
     bug_report = BugReport.find(bug_report_id)
-    return unless bug_report.callback_url.present?
 
     api_key = ApiKey.find_by(name: bug_report.source)
     raise "No API key found for source: #{bug_report.source}" unless api_key
