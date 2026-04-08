@@ -50,7 +50,7 @@ class BugReportTest < ActiveSupport::TestCase
 
   test "resolved_repo returns mapped repository" do
     report = BugReport.new(valid_attributes)
-    assert_equal "Gazwai/octokit_test", report.resolved_repo
+    assert_equal "Professional-Squash-Association/secure", report.resolved_repo
   end
 
   test "resolved_repo returns nil for unknown source" do
