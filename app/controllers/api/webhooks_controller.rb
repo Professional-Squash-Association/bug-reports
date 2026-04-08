@@ -3,6 +3,8 @@
 # bug report is marked as completed and the originating app is notified.
 module Api
   class WebhooksController < ApplicationController
+    before_action :verify_github_signature
+
     def create
       event = request.headers["X-GitHub-Event"]
       payload = JSON.parse(request.body.read)
@@ -20,6 +22,24 @@ module Api
       end
 
       head :ok
+    end
+
+    private
+
+    def verify_github_signature
+      signature = request.headers["X-Hub-Signature-256"]
+      unless signature.present?
+        head :unauthorized
+        return
+      end
+
+      body = request.body.read
+      request.body.rewind
+      expected = "sha256=#{OpenSSL::HMAC.hexdigest("SHA256", ENV.fetch("GITHUB_WEBHOOK_SECRET"), body)}"
+
+      unless ActiveSupport::SecurityUtils.secure_compare(expected, signature)
+        head :unauthorized
+      end
     end
   end
 end

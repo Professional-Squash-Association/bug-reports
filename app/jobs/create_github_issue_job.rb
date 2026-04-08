@@ -7,7 +7,7 @@ class CreateGithubIssueJob < ApplicationJob
 
   def perform(bug_report_id)
     bug_report = BugReport.find(bug_report_id)
-    client = Octokit::Client.new(access_token: ENV["GITHUB_TOKEN"])
+    client = Octokit::Client.new(access_token: ENV.fetch("GITHUB_TOKEN"))
 
     gh_issue = client.create_issue(
       bug_report.github_repo,

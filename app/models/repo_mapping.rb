@@ -1,7 +1,7 @@
 # Loads the source-to-GitHub-repository mapping from config/repo_mapping.yml.
 # Used by BugReport#resolved_repo and the GitHub issue creation job.
 class RepoMapping
-  MAPPING = YAML.load_file(Rails.root.join("config/repo_mapping.yml")).freeze
+  MAPPING = YAML.safe_load_file(Rails.root.join("config/repo_mapping.yml"), permitted_classes: []).freeze
 
   def self.repo_for(source)
     MAPPING[source]
