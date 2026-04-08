@@ -126,6 +126,13 @@ bin/rubocop                   # Check code style (Rails Omakase)
 bin/brakeman                  # Security vulnerability scan
 ```
 
+### Test Coverage
+
+```bash
+COVERAGE=1 bin/rails test
+open coverage/index.html
+```
+
 ### Background Jobs
 
 Solid Queue processes jobs in-process via Puma in development, or as a separate process in production.
