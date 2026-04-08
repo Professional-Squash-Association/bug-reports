@@ -7,3 +7,9 @@
 #   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
+
+# Create an API key for each source app defined in the repo mapping.
+RepoMapping.all_sources.each do |source|
+  api_key = ApiKey.find_or_create_by!(name: source)
+  puts "#{api_key.name}: token=#{api_key.token} webhook_secret=#{api_key.webhook_secret}"
+end

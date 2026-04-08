@@ -9,11 +9,6 @@ module Api
       bug_report = BugReport.new(bug_report_params)
       bug_report.github_repo = bug_report.resolved_repo
 
-      if bug_report.github_repo.blank?
-        render json: { error: "Unknown source: #{bug_report.source}" }, status: :unprocessable_entity
-        return
-      end
-
       if bug_report.save
         CreateGithubIssueJob.perform_later(bug_report.id)
         render json: { id: bug_report.id, status: "queued" }, status: :accepted
@@ -36,8 +31,8 @@ module Api
 
     def bug_report_params
       params.require(:bug_report).permit(
-        :title, :description, :steps_to_reproduce, :severity,
-        :source, :reporter_email, :reporter_name, :image_url, :callback_url
+        :title, :description, :severity, :source,
+        :reporter_email, :reporter_name, :callback_url
       )
     end
   end
