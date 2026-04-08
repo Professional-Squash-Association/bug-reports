@@ -9,12 +9,10 @@ class CreateGithubIssueJob < ApplicationJob
     bug_report = BugReport.find(bug_report_id)
     client = Octokit::Client.new(access_token: ENV["GITHUB_TOKEN"])
 
-    body = build_issue_body(bug_report)
-
     gh_issue = client.create_issue(
       bug_report.github_repo,
       bug_report.title,
-      body,
+      build_issue_body(bug_report),
       labels: build_labels(bug_report)
     )
 
