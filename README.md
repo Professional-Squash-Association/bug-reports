@@ -11,31 +11,37 @@ Centralised bug reporting API for PSA applications. Receives bug reports from an
 ## Local Development Setup
 
 ### 1. Clone the repository
+
 ```bash
 git clone https://github.com/Professional-Squash-Association/bug-reports.git
 cd bug-reports
 ```
 
 ### 2. Install dependencies
+
 ```bash
 bundle install
 ```
 
 ### 3. Configure environment variables
+
 Create a `.env` file in the project root with the required environment variables:
+
 ```bash
 # GitHub API token for creating issues on repositories
 GITHUB_ACCESS_TOKEN=your_github_token
 ```
 
 ### 4. Set up the database
+
 ```bash
 bin/rails db:create db:migrate
 ```
 
 ### 5. Start the development server
+
 ```bash
-bin/rails server -p 2
+bin/rails server -p 3002
 ```
 
 ## How It Works
@@ -50,7 +56,7 @@ bin/rails server -p 2
 All endpoints are namespaced under `/api` and require Bearer token authentication (except webhooks).
 
 | Method | Path | Description |
-|--------|------|-------------|
+| -------- | ------ | ------------- |
 | `POST` | `/api/bug_reports` | Submit a new bug report |
 | `GET` | `/api/bug_reports` | List all bug reports |
 | `GET` | `/api/bug_reports/:id` | Show a single bug report |
@@ -59,16 +65,19 @@ All endpoints are namespaced under `/api` and require Bearer token authenticatio
 ### Authentication
 
 API requests are authenticated using Bearer tokens. Generate a key per app via the Rails console:
+
 ```ruby
 ApiKey.create!(name: "secure")
 ```
 
 Include the token in the `Authorization` header:
-```
+
+```bash
 Authorization: Bearer <token>
 ```
 
 ### Example: Submit a bug report
+
 ```bash
 curl -X POST http://localhost:3002/api/bug_reports \
   -H "Authorization: Bearer <token>" \
@@ -91,6 +100,7 @@ Severity must be one of: `low`, `medium`, `high`, `critical`.
 ## Database Structure
 
 The application uses PostgreSQL with multiple databases:
+
 - `bug_reports_development` — Primary application database
 - `bug_reports_development_queue` — Solid Queue background jobs
 
@@ -111,12 +121,14 @@ The file [`config/repo_mapping.yml`](config/repo_mapping.yml) maps each source a
 ## Development Tools
 
 ### Code Quality
+
 ```bash
 bin/rubocop                   # Check code style (Rails Omakase)
 bin/brakeman                  # Security vulnerability scan
 ```
 
 ### Background Jobs
+
 Solid Queue processes jobs in-process via Puma in development, or as a separate process in production.
 
 ## Deployment
