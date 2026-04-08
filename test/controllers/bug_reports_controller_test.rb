@@ -52,7 +52,7 @@ class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
   test "create sets github_repo from source mapping" do
     post api_bug_reports_url, params: valid_params.to_json, headers: @headers
     report = BugReport.last
-    assert_equal "Gazwai/octokit_test", report.github_repo
+    assert_equal "Professional-Squash-Association/secure", report.github_repo
   end
 
   test "create returns 422 with invalid params" do
