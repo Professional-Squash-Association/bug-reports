@@ -1,18 +1,94 @@
 require "test_helper"
 
-class BugReportsControllerTest < ActionDispatch::IntegrationTest
-  test "should get create" do
-    get bug_reports_create_url
-    assert_response :success
+class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
+  setup do
+    @api_key = api_keys(:secure)
+    @headers = {
+      "Content-Type" => "application/json",
+      "Authorization" => "Bearer #{@api_key.token}"
+    }
   end
 
-  test "should get show" do
-    get bug_reports_show_url
-    assert_response :success
+  def valid_params
+    {
+      bug_report: {
+        title: "New bug",
+        description: "Something broke",
+        severity: "high",
+        source: "secure",
+        reporter_email: "test@example.com",
+        reporter_name: "Test User",
+        callback_url: "https://secure.example.com/api/bug_report_updates"
+      }
+    }
   end
 
-  test "should get index" do
-    get bug_reports_index_url
+  # Authentication
+
+  test "returns 401 without auth header" do
+    post api_bug_reports_url, params: valid_params.to_json, headers: { "Content-Type" => "application/json" }
+    assert_response :unauthorized
+  end
+
+  test "returns 401 with invalid token" do
+    post api_bug_reports_url, params: valid_params.to_json,
+      headers: @headers.merge("Authorization" => "Bearer invalid")
+    assert_response :unauthorized
+  end
+
+  # Create
+
+  test "create returns 202 and enqueues job" do
+    assert_enqueued_with(job: CreateGithubIssueJob) do
+      post api_bug_reports_url, params: valid_params.to_json, headers: @headers
+    end
+
+    assert_response :accepted
+    json = JSON.parse(response.body)
+    assert json["id"].present?
+    assert_equal "queued", json["status"]
+  end
+
+  test "create sets github_repo from source mapping" do
+    post api_bug_reports_url, params: valid_params.to_json, headers: @headers
+    report = BugReport.last
+    assert_equal "Gazwai/octokit_test", report.github_repo
+  end
+
+  test "create returns 422 with invalid params" do
+    invalid = { bug_report: { title: "" } }
+    post api_bug_reports_url, params: invalid.to_json, headers: @headers
+
+    assert_response :unprocessable_entity
+    json = JSON.parse(response.body)
+    assert json["errors"].any?
+  end
+
+  test "create returns 422 with unknown source" do
+    params = valid_params.deep_merge(bug_report: { source: "unknown_app" })
+    post api_bug_reports_url, params: params.to_json, headers: @headers
+
+    assert_response :unprocessable_entity
+  end
+
+  # Show
+
+  test "show returns bug report" do
+    report = bug_reports(:pending_report)
+    get api_bug_report_url(report), headers: @headers
+
     assert_response :success
+    json = JSON.parse(response.body)
+    assert_equal report.title, json["title"]
+  end
+
+  # Index
+
+  test "index returns bug reports" do
+    get api_bug_reports_url, headers: @headers
+    assert_response :success
+
+    json = JSON.parse(response.body)
+    assert json.is_a?(Array)
   end
 end

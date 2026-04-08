@@ -4,6 +4,9 @@
 # belong in git's global ignore instead:
 # `$XDG_CONFIG_HOME/git/ignore` or `~/.config/git/ignore`
 
+# Ignore macOS metadata files.
+.DS_Store
+
 # Ignore bundler config.
 /.bundle
 
@@ -30,4 +33,7 @@
 
 # Ignore key files for decrypting credentials and more.
 /config/*.key
+
+# Ignore test coverage reports.
+/coverage
 
