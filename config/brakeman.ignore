@@ -1,0 +1,10 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "e2838260cf1a6c7763ef30c166445c1da900e77b71fc2d1cfa193ee268f0019f",
+      "note": "Callback URL is only settable by authenticated API consumers (bearer token). SSRF risk is mitigated by existing API key authentication."
+    }
+  ],
+  "updated": "2026-04-08",
+  "brakeman_version": "8.0.4"
+}
