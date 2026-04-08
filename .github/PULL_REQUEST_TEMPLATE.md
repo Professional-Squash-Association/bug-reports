@@ -1,6 +1,6 @@
 # Description
 
-[Task Title with Link to Task](https://monday.com/...)
+Task Title with issue linked if applicable
 
 Brief description of what this PR does and why
 

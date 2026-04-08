@@ -112,7 +112,6 @@ The application uses PostgreSQL with multiple databases:
 - **Solid Cache** — Database-backed caching
 - **Solid Cable** — WebSocket connections
 - **Octokit** — GitHub API client for issue creation
-- **Kamal** — Container deployment
 
 ## Source-to-Repository Mapping
 
@@ -142,8 +141,6 @@ flyctl deploy
 # Open production console
 flyctl ssh console --pty -C "/rails/bin/rails console"
 ```
-
-Kamal configuration is also available in [`config/deploy.yml`](config/deploy.yml) for alternative deployment.
 
 ## Support
 
