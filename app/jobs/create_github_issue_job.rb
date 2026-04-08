@@ -29,13 +29,6 @@ class CreateGithubIssueJob < ApplicationJob
   def build_issue_body(bug_report)
     parts = []
     parts << bug_report.description if bug_report.description.present?
-    parts << "## How can we see this for ourselves?\n#{bug_report.steps_to_reproduce}" if bug_report.steps_to_reproduce.present?
-    if bug_report.image_url.present?
-      screenshots = bug_report.image_url.split(",").map.with_index(1) do |url, i|
-        "![screenshot-#{i}](#{url.strip})"
-      end
-      parts << "## Screenshots\n#{screenshots.join("\n")}"
-    end
     parts << "## Reported by\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
     parts.join("\n\n")
   end
