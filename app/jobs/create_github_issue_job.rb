@@ -29,6 +29,6 @@ class CreateGithubIssueJob < ApplicationJob
   end
 
   def build_labels(bug_report)
-    [ "bug-report", "bug", "severity:#{bug_report.severity}", "source:#{bug_report.source}" ]
+    [ "bug-report", "bug", "severity:#{bug_report.severity}" ]
   end
 end
