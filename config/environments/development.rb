@@ -62,9 +62,6 @@ Rails.application.configure do
   # Annotate rendered view with file names.
   config.action_view.annotate_rendered_view_with_filenames = true
 
-  # Allow ngrok hosts for webhook testing
-  config.hosts << /.*\.ngrok-free\.app/
-
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
 
