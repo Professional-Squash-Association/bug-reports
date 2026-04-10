@@ -27,11 +27,23 @@ module Api
       render json: bug_reports
     end
 
+    # PATCH /api/bug_reports/:id
+    def update
+      bug_report = BugReport.find(params[:id])
+
+      if bug_report.update(bug_report_params)
+        UpdateGithubIssueJob.perform_later(bug_report.id) if bug_report.github_issue_number.present?
+        render json: bug_report
+      else
+        render json: { errors: bug_report.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def bug_report_params
       params.require(:bug_report).permit(
-        :title, :description, :severity, :source,
+        :title, :description, :severity, :report_type, :source,
         :reporter_email, :reporter_name, :callback_url
       )
     end
