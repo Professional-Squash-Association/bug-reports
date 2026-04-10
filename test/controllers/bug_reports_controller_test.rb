@@ -52,7 +52,7 @@ class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
   test "create sets github_repo from source mapping" do
     post api_bug_reports_url, params: valid_params.to_json, headers: @headers
     report = BugReport.last
-    assert_equal "Professional-Squash-Association/secure", report.github_repo
+    assert_equal RepoMapping.repo_for("secure"), report.github_repo
   end
 
   test "create returns 422 with invalid params" do
@@ -80,6 +80,46 @@ class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     json = JSON.parse(response.body)
     assert_equal report.title, json["title"]
+  end
+
+  # Update
+
+  test "update returns 200 and updates the record" do
+    report = bug_reports(:pending_report)
+    params = { bug_report: { title: "Updated title", severity: "critical" } }
+
+    patch api_bug_report_url(report), params: params.to_json, headers: @headers
+
+    assert_response :success
+    report.reload
+    assert_equal "Updated title", report.title
+    assert_equal "critical", report.severity
+  end
+
+  test "update enqueues UpdateGithubIssueJob when github issue exists" do
+    report = bug_reports(:closed_report)
+    params = { bug_report: { title: "Updated title" } }
+
+    assert_enqueued_with(job: UpdateGithubIssueJob) do
+      patch api_bug_report_url(report), params: params.to_json, headers: @headers
+    end
+  end
+
+  test "update does not enqueue job when no github issue linked" do
+    report = bug_reports(:pending_report)
+    params = { bug_report: { title: "Updated title" } }
+
+    assert_no_enqueued_jobs(only: UpdateGithubIssueJob) do
+      patch api_bug_report_url(report), params: params.to_json, headers: @headers
+    end
+  end
+
+  test "update returns 422 with invalid params" do
+    report = bug_reports(:pending_report)
+    params = { bug_report: { severity: "extreme" } }
+
+    patch api_bug_report_url(report), params: params.to_json, headers: @headers
+    assert_response :unprocessable_entity
   end
 
   # Index
