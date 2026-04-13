@@ -56,7 +56,7 @@ class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "create returns 422 with invalid params" do
-    invalid = { bug_report: { title: "" } }
+    invalid = { bug_report: { title: "", source: "secure" } }
     post api_bug_reports_url, params: invalid.to_json, headers: @headers
 
     assert_response :unprocessable_entity
@@ -68,7 +68,7 @@ class Api::BugReportsControllerTest < ActionDispatch::IntegrationTest
     params = valid_params.deep_merge(bug_report: { source: "unknown_app" })
     post api_bug_reports_url, params: params.to_json, headers: @headers
 
-    assert_response :unprocessable_entity
+    assert_response :forbidden
   end
 
   # Show

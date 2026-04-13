@@ -4,6 +4,7 @@
 module Api
   class BugReportsController < ApplicationController
     before_action :authenticate_api_key
+    before_action :verify_source_ownership, only: %i[create update]
 
     def create
       bug_report = BugReport.new(bug_report_params)
@@ -40,6 +41,16 @@ module Api
     end
 
     private
+
+    def verify_source_ownership
+      source = if action_name == "create"
+        params.dig(:bug_report, :source)
+      else
+        BugReport.find(params[:id]).source
+      end
+
+      head :forbidden unless source == current_api_key.name
+    end
 
     def bug_report_params
       params.require(:bug_report).permit(
