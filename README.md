@@ -117,6 +117,36 @@ The application uses PostgreSQL with multiple databases:
 
 The file [`config/repo_mapping.yml`](config/repo_mapping.yml) maps each source app name to its GitHub repository. Update this file when adding a new PSA application.
 
+## Webhook Testing
+
+Use `gh webhook forward` to test GitHub webhooks locally. This avoids needing ngrok or a tunnel, and the temporary webhook cleans up automatically when you stop.
+
+### 1. Install the GitHub CLI webhook extension (one-time)
+
+```bash
+gh extension install cli/gh-webhook
+```
+
+### 2. Forward webhooks to your local server
+
+```bash
+gh webhook forward \
+  --repo=Gazwai/octokit_test \
+  --events=issues \
+  --secret=$GITHUB_WEBHOOK_SECRET \
+  --url=http://localhost:3002/api/webhooks
+```
+
+The `--secret` flag must match your `GITHUB_WEBHOOK_SECRET` env var so the signature verification passes. Without it, requests will fail with 401.
+
+### 3. Trigger a test event
+
+Create or close an issue on the target repo. The event will be forwarded to your local server.
+
+### 4. Stop
+
+`Ctrl+C` to stop. The temporary webhook is removed automatically.
+
 ## Development Tools
 
 ### Code Quality
