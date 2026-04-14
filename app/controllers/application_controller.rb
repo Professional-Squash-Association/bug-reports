@@ -5,8 +5,13 @@ class ApplicationController < ActionController::API
   # Each PSA app holds its own token generated via ApiKey.create!(name: "app-name").
   def authenticate_api_key
     token = request.headers["Authorization"]&.delete_prefix("Bearer ")
-    unless token.present? && ApiKey.exists?(token: token)
+    @current_api_key = ApiKey.find_by(token: token) if token.present?
+    unless @current_api_key
       render json: { error: "Unauthorised" }, status: :unauthorized
     end
+  end
+
+  def current_api_key
+    @current_api_key
   end
 end

@@ -2,9 +2,9 @@
 # Update this file when a new PSA application is added.
 
 secure: "Professional-Squash-Association/secure"
+dashboard: "Professional-Squash-Association/dashboard"
 
 # TODO: Only Secure site is being used for the moment - Gary 08 April 2026
-# dashboard: "Professional-Squash-Association/dashboard"
 # refhub: "Professional-Squash-Association/refhub"
 # squashref: "Professional-Squash-Association/squashref"
 # support: "Professional-Squash-Association/support"

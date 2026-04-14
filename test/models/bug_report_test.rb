@@ -50,7 +50,7 @@ class BugReportTest < ActiveSupport::TestCase
 
   test "resolved_repo returns mapped repository" do
     report = BugReport.new(valid_attributes)
-    assert_equal "Professional-Squash-Association/secure", report.resolved_repo
+    assert_equal RepoMapping.repo_for("secure"), report.resolved_repo
   end
 
   test "resolved_repo returns nil for unknown source" do
@@ -61,5 +61,16 @@ class BugReportTest < ActiveSupport::TestCase
   test "defaults status to pending" do
     report = BugReport.create!(valid_attributes)
     assert_equal "pending", report.status
+  end
+
+  test "defaults report_type to bug" do
+    report = BugReport.create!(valid_attributes)
+    assert_equal "bug", report.report_type
+  end
+
+  test "invalid with unrecognised report_type" do
+    report = BugReport.new(valid_attributes.merge(report_type: "enhancement"))
+    assert_not report.valid?
+    assert_includes report.errors[:report_type], "is not included in the list"
   end
 end

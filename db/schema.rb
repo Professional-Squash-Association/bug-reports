@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_094051) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_154727) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -30,6 +30,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_094051) do
     t.integer "github_issue_number"
     t.string "github_issue_url"
     t.string "github_repo"
+    t.string "report_type", default: "bug", null: false
     t.string "reporter_email", null: false
     t.string "reporter_name"
     t.string "severity", null: false
