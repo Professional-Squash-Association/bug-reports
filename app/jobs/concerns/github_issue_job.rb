@@ -15,7 +15,7 @@ module GithubIssueJob
   end
 
   def github_client
-    Octokit::Client.new(access_token: ENV.fetch("GITHUB_TOKEN"))
+    GithubApp.client
   end
 
   def build_issue_body(bug_report)

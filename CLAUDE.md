@@ -50,7 +50,10 @@ All jobs use Solid Queue, retry up to 5 times with polynomial backoff.
 
 ## Environment Variables
 
-- `GITHUB_TOKEN` — GitHub PAT for Octokit (issue creation/updates)
+- `GITHUB_APP_ID` — GitHub App id. When set, issues are created **as the app (a bot)** via `GithubApp`, so they're attributed to the app rather than a personal account.
+- `GITHUB_APP_INSTALLATION_ID` — the app's installation id on the org
+- `GITHUB_APP_PRIVATE_KEY` — the app's PEM private key (used to sign the app JWT)
+- `GITHUB_TOKEN` — personal access token, used as a fallback when the app is not configured
 - `GITHUB_WEBHOOK_SECRET` — shared secret for verifying inbound GitHub webhooks
 
 ## Testing
