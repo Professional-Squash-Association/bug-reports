@@ -22,7 +22,12 @@ module GithubIssueJob
     "#{bug_report.description}\n\n## Reported by\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
   end
 
+  # The issue "type" (set separately) already conveys bug vs feature, so these
+  # labels only mark provenance, severity (bugs only), and external reporters.
   def build_labels(bug_report)
-    [ "bug", "bug-report", "severity:#{bug_report.severity}" ]
+    labels = [ bug_report.feature? ? "feature-request" : "bug-report" ]
+    labels << "severity:#{bug_report.severity}" if bug_report.severity.present?
+    labels << "external-user" if bug_report.reporter_external?
+    labels
   end
 end

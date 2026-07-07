@@ -68,9 +68,30 @@ class BugReportTest < ActiveSupport::TestCase
     assert_equal "bug", report.report_type
   end
 
+  test "valid with feature report_type" do
+    report = BugReport.new(valid_attributes.merge(report_type: "feature"))
+    assert report.valid?
+  end
+
+  test "severity is required for bug reports" do
+    report = BugReport.new(valid_attributes.merge(report_type: "bug", severity: nil))
+    assert_not report.valid?
+    assert_includes report.errors[:severity], "can't be blank"
+  end
+
+  test "severity is optional for feature requests" do
+    report = BugReport.new(valid_attributes.merge(report_type: "feature", severity: nil))
+    assert report.valid?
+  end
+
   test "invalid with unrecognised report_type" do
     report = BugReport.new(valid_attributes.merge(report_type: "enhancement"))
     assert_not report.valid?
     assert_includes report.errors[:report_type], "is not included in the list"
+  end
+
+  test "defaults reporter_external to false" do
+    report = BugReport.create!(valid_attributes)
+    assert_not report.reporter_external?
   end
 end

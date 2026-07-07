@@ -40,4 +40,36 @@ class CreateGithubIssueJobTest < ActiveJob::TestCase
     assert_includes captured_body, @bug_report.reporter_name
     assert_includes captured_body, @bug_report.reporter_email
   end
+
+  test "a bug report carries the bug-report provenance label and its severity" do
+    opts = capture_issue_opts(bug_reports(:pending_report))
+
+    assert_equal "bug", opts[:type]
+    assert_equal [ "bug-report", "severity:medium" ], opts[:labels]
+  end
+
+  test "a feature report from an external reporter is labelled accordingly" do
+    opts = capture_issue_opts(bug_reports(:feature_report))
+
+    assert_equal "feature", opts[:type]
+    assert_equal [ "feature-request", "external-user" ], opts[:labels]
+  end
+
+  private
+
+  def capture_issue_opts(bug_report)
+    captured = nil
+
+    fake_client = Object.new
+    fake_client.define_singleton_method(:create_issue) do |_repo, _title, _body, **opts|
+      captured = opts
+      Data.define(:number, :html_url).new(number: 1, html_url: "https://github.com/example/repo/issues/1")
+    end
+
+    job = CreateGithubIssueJob.new
+    job.define_singleton_method(:github_client) { fake_client }
+    job.perform(bug_report.id)
+
+    captured
+  end
 end
