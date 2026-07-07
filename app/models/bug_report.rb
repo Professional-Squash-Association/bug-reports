@@ -4,18 +4,27 @@
 class BugReport < ApplicationRecord
   SEVERITIES = %w[low medium high critical].freeze
   STATUSES = %w[pending closed].freeze
-  REPORT_TYPES = %w[bug].freeze
+  REPORT_TYPES = %w[bug feature].freeze
 
   validates :title, :description, :source, :callback_url, presence: true
   validate :callback_url_must_be_valid_https
   validates :reporter_email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
-  validates :severity, inclusion: { in: SEVERITIES }
+  validates :severity, inclusion: { in: SEVERITIES }, allow_blank: true
+  validates :severity, presence: true, if: :bug?
   validates :status, inclusion: { in: STATUSES }
   validates :report_type, inclusion: { in: REPORT_TYPES }
   validate :source_must_be_mapped
 
   def resolved_repo
     RepoMapping.repo_for(source)
+  end
+
+  def bug?
+    report_type == "bug"
+  end
+
+  def feature?
+    report_type == "feature"
   end
 
   private

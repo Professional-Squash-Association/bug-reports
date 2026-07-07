@@ -21,3 +21,15 @@ closed_report:
   github_repo: Professional-Squash-Association/secure
   github_issue_number: 42
   github_issue_url: https://github.com/Professional-Squash-Association/secure/issues/42
+
+feature_report:
+  title: Add dark mode
+  description: Please add a dark mode toggle
+  source: secure
+  report_type: feature
+  reporter_email: player@example.com
+  reporter_name: External Player
+  reporter_external: true
+  callback_url: https://secure.example.com/api/bug_report_updates
+  status: pending
+  github_repo: Professional-Squash-Association/secure

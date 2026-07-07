@@ -55,7 +55,7 @@ module Api
     def bug_report_params
       params.require(:bug_report).permit(
         :title, :description, :severity, :report_type, :source,
-        :reporter_email, :reporter_name, :callback_url
+        :reporter_email, :reporter_name, :reporter_external, :callback_url
       )
     end
   end
