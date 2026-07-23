@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dummy</title>
+    <%# Host-only route helper: engine pages must delegate this to main_app
+        (regression cover for host layouts using their own routes). %>
+    <link rel="manifest" href="<%= pwa_manifest_path(format: :json) %>">
+  </head>
+  <body>
+    <%# Host navbars often render an avatar VARIANT - engine pages must
+        resolve its URL via the host routes (regression cover). %>
+    <% if respond_to?(:current_user) && current_user&.avatar&.attached? %>
+      <%= image_tag current_user.avatar.variant(resize_to_limit: [ 32, 32 ]), alt: "avatar" %>
+    <% end %>
+    <%= bug_report_alerts %>
+    <%= yield %>
+  </body>
+</html>

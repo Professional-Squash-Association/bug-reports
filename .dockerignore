@@ -43,3 +43,6 @@
 # Ignore Docker-related files
 /.dockerignore
 /Dockerfile*
+
+# Ignore the client engine gem (deployed via host app Gemfiles, not this image).
+/client

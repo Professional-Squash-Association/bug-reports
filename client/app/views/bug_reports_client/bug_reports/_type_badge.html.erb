@@ -1,0 +1,6 @@
+<%# Coloured pill marking a report as a bug or a feature request. Local: report_type. %>
+<% feature = report_type.to_s == "feature" %>
+<% badge_classes = feature ? "bg-indigo-100 text-indigo-700 border-indigo-200" : "bg-rose-100 text-rose-700 border-rose-200" %>
+<span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border <%= badge_classes %>">
+  <%= feature ? t("bug_reports_client.badges.feature") : t("bug_reports_client.badges.bug") %>
+</span>

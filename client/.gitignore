@@ -1,0 +1,8 @@
+Gemfile.lock
+pkg/
+test/dummy/db/*.sqlite3
+test/dummy/db/*.sqlite3-*
+test/dummy/log/
+test/dummy/storage/
+test/dummy/tmp/
+test/tmp/

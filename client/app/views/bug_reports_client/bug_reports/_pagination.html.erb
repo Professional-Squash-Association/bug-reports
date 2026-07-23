@@ -1,0 +1,21 @@
+<%# Minimal previous/next pagination driven by @page and @total_pages set in
+    the controller. Preserves the active filters. %>
+<% if @total_pages > 1 %>
+  <div class="mt-6 flex items-center justify-between text-sm">
+    <div>
+      <% if @page > 1 %>
+        <%= link_to t("bug_reports_client.pagination.previous"),
+            url_for(page: @page - 1, status: params[:status], report_type: params[:report_type]),
+            class: "inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-100" %>
+      <% end %>
+    </div>
+    <span class="text-slate-500"><%= @page %> / <%= @total_pages %></span>
+    <div>
+      <% if @page < @total_pages %>
+        <%= link_to t("bug_reports_client.pagination.next"),
+            url_for(page: @page + 1, status: params[:status], report_type: params[:report_type]),
+            class: "inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 font-medium text-slate-700 hover:bg-slate-100" %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

@@ -17,7 +17,8 @@ module Api
 
         if bug_report
           bug_report.update!(status: "closed")
-          NotifySourceAppJob.perform_later(bug_report.id)
+          # Error reports have no reporter to notify (no callback_url).
+          NotifySourceAppJob.perform_later(bug_report.id) if bug_report.callback_url.present?
         end
       end
 

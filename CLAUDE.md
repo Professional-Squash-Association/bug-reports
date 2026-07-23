@@ -1,29 +1,35 @@
 # Bug Reports
 
-Centralized bug report tracking service for PSA applications. API-only Rails app.
+Self-hostable bug report tracking service. API-only Rails app; the
+`bug_reports_client` Rails engine gem lives in `client/` in this same repo.
 
 ## Architecture
 
 ### Flow
 
-1. PSA app submits bug report via `POST /api/bug_reports` (Bearer token auth)
-2. `CreateGithubIssueJob` creates a GitHub issue via Octokit
+1. A consuming app submits a report via `POST /api/bug_reports` (Bearer token auth)
+2. `CreateGithubIssueJob` creates a GitHub issue via Octokit (dry-run in development)
 3. When a developer closes the issue on GitHub, a webhook hits `POST /api/webhooks`
-4. `NotifySourceAppJob` POSTs back to the source app's `callback_url` with an HMAC-signed payload
+4. `NotifySourceAppJob` POSTs back to the source app's `callback_url` with HMAC-signed payloads (timestamped + legacy signatures)
 
 ### Key Models
 
-- **BugReport** — core domain model. Tracks title, description, severity (`low/medium/high/critical`), status (`pending/closed`), source app, reporter info, callback URL, and linked GitHub issue details.
-- **ApiKey** — Bearer token + webhook_secret per source app. Secrets auto-generated on create.
-- **RepoMapping** — YAML-based lookup (`config/repo_mapping.yml`) mapping source app names to GitHub repos. Currently only `secure` is mapped.
+- **BugReport** — core domain model. Tracks title, description, severity (`low/medium/high/critical`), status (`pending/closed`), report type (`bug/feature`), source app, reporter info, callback URL, and linked GitHub issue details.
+- **ApiKey** — one record per consuming app: Bearer `token`, `webhook_secret` for callback signing, and `github_repo` (owner/repository) where that app's issues are filed. Secrets auto-generated on create. Onboard apps with `ApiKey.create!(name:, github_repo:)`.
 
 ### Jobs
 
 All jobs use Solid Queue, retry up to 5 times with polynomial backoff.
 
-- **CreateGithubIssueJob** — creates GitHub issue, stores issue number/URL on BugReport
-- **UpdateGithubIssueJob** — syncs title/description/labels to GitHub when a BugReport is updated
-- **NotifySourceAppJob** — HMAC-signs payload with ApiKey's `webhook_secret`, POSTs to `callback_url`. Validates callback is HTTPS with a public IP.
+- **CreateGithubIssueJob** — creates the GitHub issue, stores issue number/URL on BugReport. Respects `GithubDryRun`.
+- **UpdateGithubIssueJob** — syncs title/body/labels to GitHub when a BugReport is updated. Respects `GithubDryRun`.
+- **NotifySourceAppJob** — signs the closure payload with the app's `webhook_secret` (timestamped and legacy signatures), POSTs to `callback_url`. Validates the callback is HTTPS resolving to a public IP.
+
+### Services
+
+- **GithubApp** — Octokit client authenticating as a GitHub App installation, falling back to `GITHUB_TOKEN`.
+- **GithubIssuePayload** — builds the exact issue payload (repo/title/body/labels); shared by jobs, dry-run and the preview task.
+- **GithubDryRun** — active in development or `GITHUB_DRY_RUN=true`; logs payloads instead of calling GitHub. `bin/rails bug_reports:preview` prints payloads for stored reports.
 
 ### API Endpoints
 
@@ -35,30 +41,21 @@ All jobs use Solid Queue, retry up to 5 times with polynomial backoff.
 | PATCH | `/api/bug_reports/:id` | Bearer token | Update bug report |
 | POST | `/api/webhooks` | GitHub HMAC signature | Receive GitHub webhook |
 
-### Authentication
-
-- **API endpoints** use Bearer token auth via `ApiKey.token` (checked in `ApplicationController`)
-- **Webhook endpoint** verifies `X-Hub-Signature-256` header against `GITHUB_WEBHOOK_SECRET` env var
+Ownership: an app's token only permits reports whose `source` equals its ApiKey name (403 otherwise).
 
 ## Stack
 
 - Rails 8.1 (API-only), Ruby 3.3.10
-- PostgreSQL
-- Solid Trifecta (SolidQueue, SolidCache, SolidCable)
+- PostgreSQL, Solid Trifecta (SolidQueue, SolidCache, SolidCable)
 - Octokit for GitHub API
 - Port: 3002
 
 ## Environment Variables
 
-- `GITHUB_APP_ID` — GitHub App id. When set, issues are created **as the app (a bot)** via `GithubApp`, so they're attributed to the app rather than a personal account.
-- `GITHUB_APP_INSTALLATION_ID` — the app's installation id on the org
-- `GITHUB_APP_PRIVATE_KEY` — the app's PEM private key (used to sign the app JWT)
-- `GITHUB_TOKEN` — personal access token, used as a fallback when the app is not configured
-- `GITHUB_WEBHOOK_SECRET` — shared secret for verifying inbound GitHub webhooks
+See `.env.example`. `GITHUB_APP_ID`/`GITHUB_APP_INSTALLATION_ID`/`GITHUB_APP_PRIVATE_KEY` (issues created as a bot), `GITHUB_TOKEN` (fallback PAT), `GITHUB_WEBHOOK_SECRET` (inbound webhook verification), `GITHUB_DRY_RUN` (force dry-run outside development).
 
 ## Testing
 
-- Minitest with fixtures
-- `bin/rails test` to run, `COVERAGE=1 bin/rails test` for SimpleCov coverage
+- Minitest with fixtures; `bin/rails test` (`COVERAGE=1` for SimpleCov)
 - Jobs mock the GitHub client using singleton methods
-- Controller tests use `ActionDispatch::IntegrationTest`
+- The engine has its own suite: `cd client && bundle exec rake test`

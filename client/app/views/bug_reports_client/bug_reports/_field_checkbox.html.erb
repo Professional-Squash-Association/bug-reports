@@ -1,0 +1,18 @@
+<%# Checkbox for a schema field. A hidden field submits "0" when unticked so
+    the answer is always present in responses. Locals: field, bug_report, readonly. %>
+<div class="flex items-start gap-2 pt-1">
+  <%= hidden_field_tag "bug_report[responses][#{field.key}]", "0", id: nil, disabled: readonly %>
+  <%= check_box_tag "bug_report[responses][#{field.key}]", "1",
+      ActiveModel::Type::Boolean.new.cast(bug_report.response(field.key)),
+      id: "bug_report_responses_#{field.key}", disabled: readonly,
+      class: "mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-700 focus:ring-slate-500" %>
+  <div>
+    <%= label_tag "bug_report_responses_#{field.key}", nil, class: "text-sm text-slate-700" do %>
+      <%= field.label_text %>
+      <% if field.required? %><span class="text-orange-500">*</span><% end %>
+    <% end %>
+    <% if field.help_text.present? %>
+      <p class="mt-0.5 text-xs text-slate-400"><%= field.help_text %></p>
+    <% end %>
+  </div>
+</div>

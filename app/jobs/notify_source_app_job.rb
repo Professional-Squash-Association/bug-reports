@@ -1,4 +1,4 @@
-# Notifies the originating PSA application when a bug report's GitHub issue is closed.
+# Notifies the originating application when a bug report's GitHub issue is closed.
 # Sends a signed POST request to the callback URL so the app can update the user.
 # The payload is signed with the per-app webhook secret from the ApiKey record,
 # allowing each consuming app to verify callbacks independently.
@@ -26,12 +26,12 @@ class NotifySourceAppJob < ApplicationJob
       status: "closed"
     }.to_json
 
-    # Sign with the per-app webhook secret so each app can verify independently
-    signature = OpenSSL::HMAC.hexdigest(
-      "SHA256",
-      api_key.webhook_secret,
-      payload
-    )
+    # Sign with the per-app webhook secret so each app can verify independently.
+    # A timestamp is included in the signature so receivers can reject
+    # replayed callbacks; X-Signature (body-only) is kept for older receivers.
+    timestamp = Time.current.to_i.to_s
+    signature = OpenSSL::HMAC.hexdigest("SHA256", api_key.webhook_secret, payload)
+    timestamped_signature = OpenSSL::HMAC.hexdigest("SHA256", api_key.webhook_secret, "#{timestamp}.#{payload}")
 
     uri = URI.parse(bug_report.callback_url)
     validate_callback_url!(uri)
@@ -42,7 +42,9 @@ class NotifySourceAppJob < ApplicationJob
 
     request = Net::HTTP::Post.new(uri.path, {
       "Content-Type" => "application/json",
-      "X-Signature" => "sha256=#{signature}"
+      "X-Signature" => "sha256=#{signature}",
+      "X-Timestamp" => timestamp,
+      "X-Signature-Timestamped" => "sha256=#{timestamped_signature}"
     })
     request.body = payload
 

@@ -1,0 +1,22 @@
+<%# Dismissable alerts for resolved reports. Rendered in HOST layouts via the
+    bug_report_alerts helper, so routes go through the mount proxy. %>
+<div id="bug_report_alerts" class="mb-6">
+  <% resolved_bug_reports.each do |report| %>
+    <div id="bug_report_<%= report.id %>" class="flex items-center justify-between p-3 mb-2 border border-green-200 rounded-lg bg-green-50">
+      <div class="flex items-center gap-2">
+        <svg class="flex-shrink-0 w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <span class="text-sm text-green-800">
+          <%= t("bug_reports_client.alerts.resolved_html", type_noun: report.type_noun, title: report.title) %>
+        </span>
+      </div>
+      <%= button_to bug_reports_client.bug_report_path(report),
+          method: :patch,
+          class: "text-xs text-green-600 hover:text-green-800 font-medium flex-shrink-0 cursor-pointer",
+          data: { turbo_stream: true } do %>
+        <%= t("bug_reports_client.alerts.dismiss") %>
+      <% end %>
+    </div>
+  <% end %>
+</div>

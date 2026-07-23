@@ -1,0 +1,23 @@
+<!--
+Rename this file to config/bug_report_issue.md to control the GitHub issue
+body yourself. Placeholders in {{double braces}} are replaced with the
+report's answers: every field key from config/bug_report_form.yml works, plus
+{{title}}, {{report_type}}, {{severity}}, {{reporter_name}}, {{app_name}} and
+{{screenshots}}. Without this file, the issue body is generated automatically
+from the schema (a heading per answered field). Delete this comment block if
+you activate the template - it would appear in your GitHub issues.
+-->
+
+**Severity:** {{severity}} | **Reported by:** {{reporter_name}} ({{app_name}})
+
+## What should happen?
+{{expected_behaviour}}
+
+## What actually happens?
+{{actual_behaviour}}
+
+## Steps to reproduce
+{{steps_to_reproduce}}
+
+## Screenshots
+{{screenshots}}

@@ -1,0 +1,15 @@
+<%# Select for a schema field. Options are [label, value] pairs from the
+    schema. Locals: field, bug_report, readonly. %>
+<div>
+  <%= label_tag "bug_report_responses_#{field.key}", nil, class: brc_label_classes do %>
+    <%= field.label_text %>
+    <% if field.required? %><span class="text-orange-500">*</span><% else %><span class="font-normal normal-case text-slate-400"><%= t("bug_reports_client.form.optional") %></span><% end %>
+  <% end %>
+  <%= select_tag "bug_report[responses][#{field.key}]",
+      options_for_select(field.options, bug_report.response(field.key)),
+      id: "bug_report_responses_#{field.key}", class: brc_input_classes,
+      include_blank: field.prompt_text, required: field.required?, disabled: readonly %>
+  <% if field.help_text.present? %>
+    <p class="mt-1 text-xs text-slate-400"><%= field.help_text %></p>
+  <% end %>
+</div>

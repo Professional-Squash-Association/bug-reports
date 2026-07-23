@@ -2,3 +2,4 @@ secure:
   name: secure
   token: test_token_secure
   webhook_secret: test_webhook_secret_secure
+  github_repo: example-org/secure

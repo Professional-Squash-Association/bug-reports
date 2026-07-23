@@ -1,0 +1,12 @@
+# Development/test dependencies for the engine. Runtime dependencies live in
+# the gemspec.
+source "https://rubygems.org"
+
+gemspec
+
+group :development, :test do
+  gem "sqlite3", ">= 2.0"
+  gem "propshaft"
+  gem "webmock"
+  gem "rubocop-rails-omakase", require: false
+end

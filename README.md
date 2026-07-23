@@ -1,82 +1,98 @@
 # Bug Reports
 
-Centralised bug reporting API for PSA applications. Receives bug reports from any PSA app, creates GitHub issues on the correct repository, and notifies the source app when the issue is closed. Built with Ruby on Rails 8.1 as an API-only application.
+A small, self-hostable bug-reporting service for teams running multiple
+apps. Your applications submit bug reports and feature requests to this API;
+it files them as GitHub issues on the right repository, and calls the source
+app back with a signed webhook when the issue is closed - so reporters can be
+told "your report has been resolved".
 
-## Prerequisites
+Built with Ruby on Rails 8.1 as an API-only application. Pairs with
+[`bug_reports_client`](client/) - a mountable Rails engine that gives any
+Rails app a polished, schema-driven report form, screenshot uploads, a
+my-reports page and resolved-report alerts with a few lines of setup.
 
-- **Ruby**: 3.3.10 (see [.ruby-version](.ruby-version))
-- **PostgreSQL**: 14+
-- **Bundler**: Latest version
-
-## Local Development Setup
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/Professional-Squash-Association/bug-reports.git
-cd bug-reports
+```
+Your app (bug_reports_client gem)          This API                 GitHub
+  submit form ── POST /api/bug_reports ──▶ persist + resolve repo
+                                           CreateGithubIssueJob ──▶ issue created
+                                                                    issue closed
+                                           POST /api/webhooks ◀──── webhook
+  signed callback ◀── NotifySourceAppJob ─ mark closed
+  "your report was resolved" banner
 ```
 
-### 2. Install dependencies
+## Requirements
+
+- Ruby 3.3+ (see [.ruby-version](.ruby-version)), PostgreSQL 14+
+- A GitHub App (recommended) or a personal access token that can create
+  issues on your repositories
+
+## Setup
 
 ```bash
 bundle install
-```
-
-### 3. Configure environment variables
-
-Create a `.env` file in the project root with the required environment variables:
-
-```bash
-# GitHub API token for creating issues on repositories
-GITHUB_ACCESS_TOKEN=your_github_token
-```
-
-### 4. Set up the database
-
-```bash
-bin/rails db:create db:migrate
-```
-
-### 5. Start the development server
-
-```bash
+cp .env.example .env       # then fill in the GitHub credentials
+bin/rails db:prepare       # creates the database and a demo API key in dev
 bin/rails server -p 3002
 ```
 
-## How It Works
+### GitHub credentials
 
-1. A PSA app (e.g. Secure, Dashboard) sends a bug report to the API with a title, description, severity, and callback URL.
-2. The API persists the report and resolves the correct GitHub repository using the source-to-repo mapping in [`config/repo_mapping.yml`](config/repo_mapping.yml).
-3. A background job (`CreateGithubIssueJob`) creates a GitHub issue on the mapped repository via the Octokit gem.
-4. When the GitHub issue is closed, a webhook event hits the API, marks the bug report as closed, and a second background job (`NotifySourceAppJob`) sends a signed callback to the source app.
+Two options, configured via environment variables (see
+[.env.example](.env.example)):
 
-## API Endpoints
+1. **GitHub App (recommended)** - issues are created by a bot identity, not
+   a personal account. Create an app under your organisation
+   (Settings -> Developer settings -> GitHub Apps) with **Issues:
+   read & write** repository permission and the **Issues** webhook event,
+   install it on every repository that should receive issues, then set
+   `GITHUB_APP_ID`, `GITHUB_APP_INSTALLATION_ID` and
+   `GITHUB_APP_PRIVATE_KEY` (the PEM contents).
+2. **Personal access token** - set `GITHUB_TOKEN` (fine-grained, Issues
+   read/write on the target repos). Used automatically when no app is
+   configured.
 
-All endpoints are namespaced under `/api` and require Bearer token authentication (except webhooks).
+Point the GitHub (App or repository) webhook at
+`https://<your-host>/api/webhooks` for **Issues** events, and set the same
+secret in `GITHUB_WEBHOOK_SECRET` - inbound webhooks are verified against
+`X-Hub-Signature-256`.
 
-| Method | Path | Description |
-| -------- | ------ | ------------- |
-| `POST` | `/api/bug_reports` | Submit a new bug report |
-| `GET` | `/api/bug_reports` | List all bug reports |
-| `GET` | `/api/bug_reports/:id` | Show a single bug report |
-| `POST` | `/api/webhooks` | Receive GitHub webhook events |
+### Onboarding an application
 
-### Authentication
-
-API requests are authenticated using Bearer tokens. Generate a key per app via the Rails console:
+Each consuming app is one `ApiKey` record - no config files, no deploys:
 
 ```ruby
-ApiKey.create!(name: "secure")
+ApiKey.create!(name: "myapp", github_repo: "my-org/myapp")
 ```
 
-Include the token in the `Authorization` header:
+The record carries everything the app needs: `token` (Bearer auth),
+`webhook_secret` (verifying closure callbacks) and the GitHub repository its
+reports are filed on. An app may only create/update reports whose `source`
+matches its own key name.
 
-```bash
-Authorization: Bearer <token>
-```
+If the app is Rails, install the [`bug_reports_client`](client/README.md)
+gem and set `BUG_REPORT_API_URL`, `BUG_REPORT_API_KEY`,
+`BUG_REPORT_WEBHOOK_SECRET` and `APP_HOST` - everything else is provided.
 
-### Example: Submit a bug report
+## API
+
+All endpoints are under `/api`. Bearer token auth everywhere except the
+GitHub webhook receiver.
+
+| Method | Path | Auth | Purpose |
+|--------|------|------|---------|
+| POST | `/api/bug_reports` | Bearer token | Create a report (returns 202 + id) |
+| GET | `/api/bug_reports` | Bearer token | List reports |
+| GET | `/api/bug_reports/:id` | Bearer token | Show a report |
+| PATCH | `/api/bug_reports/:id` | Bearer token | Update a report (re-syncs the issue) |
+| POST | `/api/error_reports` | Bearer token | Automatic 500 capture, deduplicated by fingerprint |
+| POST | `/api/webhooks` | GitHub HMAC | Receive GitHub issue events |
+
+Error reports (`report_type: "error"`) are machine-generated 500 captures
+from the client engine: no reporter details or callback URL, deduplicated by
+`source` + `fingerprint` - repeats of an open error bump its
+`occurrence_count` rather than filing duplicate issues, and a recurrence
+after the issue is closed files a fresh one.
 
 ```bash
 curl -X POST http://localhost:3002/api/bug_reports \
@@ -85,100 +101,62 @@ curl -X POST http://localhost:3002/api/bug_reports \
   -d '{
     "bug_report": {
       "title": "Login page returns 500",
-      "description": "Clicking sign in on the login page throws an internal server error.",
+      "description": "Markdown body for the GitHub issue.",
       "severity": "high",
-      "source": "secure",
-      "reporter_email": "dev@example.com",
-      "reporter_name": "Dev",
-      "callback_url": "https://secure.example.com/api/bug_report_callbacks"
+      "report_type": "bug",
+      "source": "myapp",
+      "reporter_email": "someone@example.com",
+      "reporter_name": "Someone",
+      "callback_url": "https://myapp.example.com/bug_reports/webhook"
     }
   }'
 ```
 
-Severity must be one of: `low`, `medium`, `high`, `critical`.
+`severity`: `low|medium|high|critical` (required for bugs). `report_type`:
+`bug|feature`. `callback_url` must be public HTTPS - it is validated at
+submission time and again (with DNS resolution, blocking private/loopback
+addresses) before every callback.
 
-## Database Structure
+### Closure callbacks
 
-The application uses PostgreSQL with multiple databases:
+When an issue is closed on GitHub, the source app's `callback_url` receives
+a JSON POST signed with that app's `webhook_secret`:
 
-- `bug_reports_development` — Primary application database
-- `bug_reports_development_queue` — Solid Queue background jobs
+- `X-Timestamp` - unix seconds, and
+- `X-Signature-Timestamped: sha256=<hex>` - HMAC-SHA256 over
+  `"<timestamp>.<body>"` (receivers should reject stale timestamps), plus
+- `X-Signature: sha256=<hex>` - legacy HMAC over the body alone, kept for
+  older receivers.
 
-## Key Technologies
+The `bug_reports_client` engine implements the receiving side, including
+replay protection.
 
-- **Rails 8.1** — API-only application framework
-- **PostgreSQL** — Primary database
-- **Solid Queue** — Background job processing (Solid Trifecta)
-- **Solid Cache** — Database-backed caching
-- **Solid Cable** — WebSocket connections
-- **Octokit** — GitHub API client for issue creation
+## Development
 
-## Source-to-Repository Mapping
+- **GitHub dry-run**: in development (or with `GITHUB_DRY_RUN=true`), issue
+  creation/updates are logged instead of sent - nothing touches GitHub.
+  Inspect the exact would-be payload for stored reports with
+  `bin/rails bug_reports:preview` (`LIMIT=25` or `ID=3`).
+- **Local webhooks**: `gh extension install cli/gh-webhook`, then
+  `gh webhook forward --repo=<org>/<repo> --events=issues
+  --secret=$GITHUB_WEBHOOK_SECRET --url=http://localhost:3002/api/webhooks`.
+- **Tests**: `bin/rails test` (`COVERAGE=1` for SimpleCov). The client
+  engine has its own suite: `cd client && bundle exec rake test`.
+- **Linting/scanning**: `bin/rubocop`, `bin/brakeman`.
 
-The file [`config/repo_mapping.yml`](config/repo_mapping.yml) maps each source app name to its GitHub repository. Update this file when adding a new PSA application.
+## Stack
 
-## Webhook Testing
-
-Use `gh webhook forward` to test GitHub webhooks locally. This avoids needing ngrok or a tunnel, and the temporary webhook cleans up automatically when you stop.
-
-### 1. Install the GitHub CLI webhook extension (one-time)
-
-```bash
-gh extension install cli/gh-webhook
-```
-
-### 2. Forward webhooks to your local server
-
-```bash
-gh webhook forward \
-  --repo=Gazwai/octokit_test \
-  --events=issues \
-  --secret=$GITHUB_WEBHOOK_SECRET \
-  --url=http://localhost:3002/api/webhooks
-```
-
-The `--secret` flag must match your `GITHUB_WEBHOOK_SECRET` env var so the signature verification passes. Without it, requests will fail with 401.
-
-### 3. Trigger a test event
-
-Create or close an issue on the target repo. The event will be forwarded to your local server.
-
-### 4. Stop
-
-`Ctrl+C` to stop. The temporary webhook is removed automatically.
-
-## Development Tools
-
-### Code Quality
-
-```bash
-bin/rubocop                   # Check code style (Rails Omakase)
-bin/brakeman                  # Security vulnerability scan
-```
-
-### Test Coverage
-
-```bash
-COVERAGE=1 bin/rails test
-open coverage/index.html
-```
-
-### Background Jobs
-
-Solid Queue processes jobs in-process via Puma in development, or as a separate process in production.
+Rails 8.1 API-only, PostgreSQL, Solid Queue/Cache/Cable, Octokit. Background
+jobs retry 5 times with polynomial backoff. This repository also contains
+the [`bug_reports_client`](client/) engine gem under `client/`.
 
 ## Deployment
 
-The application is deployed to [Fly.io](https://fly.io) using `flyctl` and the [fly.toml](fly.toml) configuration file.
+Any Rails-friendly host works. For [Fly.io](https://fly.io), copy
+[fly.toml.example](fly.toml.example) to `fly.toml` (gitignored - deployment
+config is per-installation), set your app name, add the environment
+variables as secrets, and `fly deploy`.
 
-```bash
-# Deploy to production
-flyctl deploy
+## Licence
 
-# Open production console
-flyctl ssh console --pty -C "/rails/bin/rails console"
-```
-
-## Support
-
-For issues or questions, contact the PSA Digital Team.
+MIT - see [LICENSE](LICENSE).

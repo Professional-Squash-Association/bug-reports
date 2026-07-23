@@ -1,0 +1,7 @@
+/* Tailwind v4 hosts only (tailwindcss-rails >= 4.x engine support).
+   Tells the host's Tailwind build to scan the engine's views and JavaScript
+   for utility classes. Tailwind v3 hosts instead add the gem's paths to their
+   tailwind.config.js content globs - see the gem README. */
+@source "../../../views/bug_reports_client/**/*.erb";
+@source "../../../helpers/bug_reports_client/**/*.rb";
+@source "../../../javascript/bug_reports_client/**/*.js";

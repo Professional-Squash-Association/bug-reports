@@ -1,7 +1,8 @@
-# fly.toml - Bug Reports API
-# Centralised bug reporting service for PSA applications.
+# Example Fly.io configuration for self-hosting the Bug Reports API.
+# Copy to fly.toml, set your own app name and region, then `fly deploy`.
+# (fly.toml is gitignored - each deployment keeps its own copy locally.)
 
-app = 'smm-bug-reports'
+app = 'your-bug-reports-app'
 primary_region = 'lhr'
 console_command = '/rails/bin/rails console'
 

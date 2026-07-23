@@ -1,0 +1,11 @@
+<%# Low/medium/high/critical pill. Used for a bug's severity and a feature's
+    priority (see BugReport#importance). Local: value. %>
+<% badge_classes = case value
+when "critical" then "bg-red-100 text-red-700 border-red-200"
+when "high" then "bg-orange-100 text-orange-700 border-orange-200"
+when "medium" then "bg-yellow-100 text-yellow-700 border-yellow-200"
+else "bg-slate-100 text-slate-600 border-slate-200"
+end %>
+<span class="inline-flex items-center text-xs font-medium px-2 py-0.5 rounded border <%= badge_classes %>">
+  <%= value.present? ? value.capitalize : "&mdash;".html_safe %>
+</span>

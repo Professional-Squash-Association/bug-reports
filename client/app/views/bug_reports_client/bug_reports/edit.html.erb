@@ -1,0 +1,40 @@
+<% content_for(:title) { @bug_report.title } %>
+
+<%# No page container here - the host layout owns page width and padding. %>
+<div>
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="font-bold text-3xl mb-2 text-slate-900"><%= @bug_report.title %></h1>
+        <div class="flex flex-wrap items-center gap-3">
+          <%= render "type_badge", report_type: @bug_report.report_type %>
+          <%= render "status_badge", status: @bug_report.status %>
+          <%= render "rating_badge", value: @bug_report.importance %>
+          <span class="text-sm text-slate-500"><%= t("bug_reports_client.edit.submitted_at", timestamp: @bug_report.created_at.strftime("%-d %b %Y at %H:%M")) %></span>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <%= link_to bug_reports_path, class: "inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100", title: t("bug_reports_client.edit.back") do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <% unless @bug_report.open? %>
+    <div class="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+      <div class="flex gap-3">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <p class="text-sm text-green-800"><%= t("bug_reports_client.edit.resolved_notice", type_noun: @bug_report.type_noun) %></p>
+      </div>
+    </div>
+  <% end %>
+
+  <%= render "form", bug_report: @bug_report %>
+</div>

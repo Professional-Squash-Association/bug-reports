@@ -2,7 +2,7 @@ class ApplicationController < ActionController::API
   private
 
   # Authenticates requests using a bearer token from the Authorization header.
-  # Each PSA app holds its own token generated via ApiKey.create!(name: "app-name").
+  # Each consuming app holds its own token generated via ApiKey.create!.
   def authenticate_api_key
     token = request.headers["Authorization"]&.delete_prefix("Bearer ")
     @current_api_key = ApiKey.find_by(token: token) if token.present?

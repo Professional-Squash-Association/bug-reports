@@ -10,12 +10,13 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_07_121000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_23_105026) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
   create_table "api_keys", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "github_repo"
     t.string "name", null: false
     t.string "token", null: false
     t.datetime "updated_at", null: false
@@ -27,11 +28,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_121000) do
     t.string "callback_url"
     t.datetime "created_at", null: false
     t.text "description"
+    t.string "fingerprint"
     t.integer "github_issue_number"
     t.string "github_issue_url"
     t.string "github_repo"
+    t.datetime "last_occurred_at"
+    t.integer "occurrence_count", default: 1, null: false
     t.string "report_type", default: "bug", null: false
-    t.string "reporter_email", null: false
+    t.string "reporter_email"
     t.boolean "reporter_external", default: false, null: false
     t.string "reporter_name"
     t.string "severity"
@@ -39,5 +43,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_07_121000) do
     t.string "status", default: "pending"
     t.string "title", null: false
     t.datetime "updated_at", null: false
+    t.index ["source", "fingerprint"], name: "index_bug_reports_on_source_and_fingerprint"
   end
 end

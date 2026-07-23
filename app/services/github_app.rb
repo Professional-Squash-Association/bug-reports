@@ -1,7 +1,7 @@
 require "openssl"
 require "base64"
 
-# Builds an Octokit client that authenticates as the "PSA Reporter" GitHub
+# Builds an Octokit client that authenticates as a GitHub
 # App installation, so issues are attributed to the app (a bot) rather than a
 # personal account. Falls back to a personal access token when the app is not
 # configured (e.g. local development), so nothing breaks before the app exists.

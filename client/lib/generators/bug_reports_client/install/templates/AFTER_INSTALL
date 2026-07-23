@@ -1,0 +1,28 @@
+
+===============================================================================
+bug_reports_client installed. Remaining steps:
+
+1. Migrations:
+     bin/rails bug_reports_client:install:migrations && bin/rails db:migrate
+
+2. Link your user model (app/models/user.rb):
+     include BugReportsClient::Reporter
+
+3. Add a menu link and the resolved-report alerts to your layout:
+     <%= link_to "Report a bug", bug_reports_client.new_bug_report_path %>
+     <%= bug_report_alerts %>
+
+4. Tailwind: add the gem's views to your build.
+   - Tailwind v3 (tailwind.config.js content globs): see README "Styling".
+   - Tailwind v4: add to app/assets/tailwind/application.css:
+       @import "../builds/tailwind/bug_reports_client";
+
+5. Environment variables (or set them in the initializer):
+     BUG_REPORT_API_URL      e.g. https://bugs.example.com/api
+     BUG_REPORT_API_KEY      this app's API token
+     BUG_REPORT_WEBHOOK_SECRET  this app's webhook secret
+     APP_HOST                public HTTPS origin of this app
+
+6. Review config/initializers/bug_reports_client.rb (source, admin_check,
+   ask_severity...) and customise config/bug_report_form.yml if you like.
+===============================================================================

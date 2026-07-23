@@ -37,3 +37,6 @@
 # Ignore test coverage reports.
 /coverage
 
+
+# Deployment config is per-installation (see fly.toml.example).
+/fly.toml

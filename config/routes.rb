@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   namespace :api do
     resources :bug_reports, only: %i[create show index update]
+    resources :error_reports, only: %i[create]
     resources :webhooks, only: %i[create]
   end
 

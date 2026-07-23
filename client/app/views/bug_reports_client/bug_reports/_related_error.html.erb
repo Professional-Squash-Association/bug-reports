@@ -1,0 +1,20 @@
+<%# "Did your problem relate to this error?" - shown on NEW reports only,
+    and only when the signed-in user hit captured 500s recently. Rendered
+    from _form; stays engine-owned even when hosts copy the form, so the
+    behaviour keeps receiving upstream updates. Locals: bug_report, and
+    recent_error_events (may be nil on edit renders). %>
+<% events = local_assigns[:recent_error_events] %>
+<% if !bug_report.persisted? && events.present? %>
+  <div class="bg-amber-50 border border-amber-200 rounded-xl p-6">
+    <label for="bug_report_related_error_event_id" class="block text-xs font-medium text-amber-700 uppercase tracking-wide mb-1">
+      <%= t("bug_reports_client.form.related_error.label") %>
+    </label>
+    <p class="mb-2 text-xs text-amber-700/80"><%= t("bug_reports_client.form.related_error.help") %></p>
+    <%# User-facing wording only - what they were doing, never the exception. %>
+    <%= select_tag "bug_report[related_error_event_id]",
+        options_for_select(events.map { |event| [ "#{event.occurred_at.strftime('%-d %b %H:%M')} - #{event.user_facing_description}", event.id ] }),
+        include_blank: t("bug_reports_client.form.related_error.prompt"),
+        id: "bug_report_related_error_event_id",
+        class: "w-full rounded-lg border border-amber-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500" %>
+  </div>
+<% end %>

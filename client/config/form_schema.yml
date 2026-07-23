@@ -1,0 +1,114 @@
+# Default form definition for bug_reports_client. Host apps can replace this
+# wholesale by creating config/bug_report_form.yml (copied for you by the
+# install generator). Field wording lives in i18n under
+# bug_reports_client.fields.<field>.* unless overridden inline here.
+#
+# Each field: field (snake_case key), type (text|textarea|select|checkbox),
+# required, section (starts a new card), rows (textareas), options (selects -
+# strings, or {value:, label:} pairs when the stored value should differ).
+bug:
+  - field: impact
+    type: textarea
+    required: true
+    section: about_the_bug
+
+  - field: expected_behaviour
+    type: textarea
+    required: true
+    section: behaviour
+
+  - field: actual_behaviour
+    type: textarea
+    required: true
+    section: behaviour
+
+  - field: steps_to_reproduce
+    type: textarea
+    rows: 4
+    section: reproduction
+
+  - field: specific_examples
+    type: textarea
+    rows: 4
+    section: reproduction
+
+  - field: page_url
+    type: text
+    section: reproduction
+
+  - field: browser
+    type: select
+    options: [Chrome, Safari, Firefox, Edge, Other]
+    section: reproduction
+
+  - field: additional_context
+    type: textarea
+    section: additional_information
+
+feature:
+  - field: priority
+    type: select
+    required: true
+    section: your_idea
+    options:
+      - { value: high, label: "High - would save significant time or unblock something" }
+      - { value: medium, label: "Medium - a real improvement, but manageable for now" }
+      - { value: low, label: "Low - nice to have, no rush" }
+
+  - field: problem
+    type: textarea
+    required: true
+    rows: 4
+    section: your_idea
+
+  - field: solution
+    type: textarea
+    required: true
+    rows: 4
+    section: your_idea
+
+  - field: time_per_occurrence
+    type: select
+    required: true
+    section: impact_and_frequency
+    options:
+      - "Less than 5 minutes"
+      - "5-15 minutes"
+      - "15-30 minutes"
+      - "30 minutes to 1 hour"
+      - "1-2 hours"
+      - "More than 2 hours"
+      - "Not sure"
+
+  - field: frequency
+    type: select
+    required: true
+    section: impact_and_frequency
+    options:
+      - "Multiple times a day"
+      - "Daily"
+      - "A few times a week"
+      - "Weekly"
+      - "A few times a month"
+      - "Monthly"
+      - "Rarely"
+
+  - field: people_affected
+    type: text
+    section: impact_and_frequency
+
+  - field: user_story
+    type: textarea
+    section: success_criteria_and_risks
+
+  - field: done_criteria
+    type: textarea
+    section: success_criteria_and_risks
+
+  - field: edge_cases
+    type: textarea
+    section: success_criteria_and_risks
+
+  - field: additional_context
+    type: textarea
+    section: additional_information

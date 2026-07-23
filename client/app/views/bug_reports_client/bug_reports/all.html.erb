@@ -1,0 +1,66 @@
+<%# Admin-only list of every report from this app, gated by config.admin_check. %>
+<% content_for(:title) { t("bug_reports_client.titles.all") } %>
+
+<%# No page container here - the host layout owns page width and padding. %>
+<div>
+  <div class="mb-6">
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="font-bold text-3xl mb-2 text-slate-900"><%= t("bug_reports_client.all.heading") %></h1>
+        <p class="text-sm text-slate-600"><%= t("bug_reports_client.all.subheading") %></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <%= link_to bug_reports_path, class: "inline-flex items-center rounded-lg border border-slate-300 px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100", title: t("bug_reports_client.index.heading") do %>
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "filters" %>
+
+  <% if @bug_reports.present? %>
+    <div class="bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
+      <table class="w-full text-sm text-left">
+        <thead class="text-xs text-slate-500 uppercase bg-slate-100 border-b border-slate-200">
+          <tr>
+            <th scope="col" class="px-6 py-4"><%= t("bug_reports_client.index.table.title") %></th>
+            <th scope="col" class="px-6 py-4"><%= t("bug_reports_client.all.reporter") %></th>
+            <th scope="col" class="px-6 py-4"><%= t("bug_reports_client.index.table.priority") %></th>
+            <th scope="col" class="px-6 py-4"><%= t("bug_reports_client.index.table.status") %></th>
+            <th scope="col" class="px-6 py-4"><%= t("bug_reports_client.index.table.submitted") %></th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-200">
+          <% @bug_reports.each do |report| %>
+            <tr class="bg-white hover:bg-slate-50 transition-colors">
+              <td class="px-6 py-4 font-medium text-slate-900">
+                <div class="flex items-center gap-2">
+                  <%= render "type_badge", report_type: report.report_type %>
+                  <%= link_to report.title, edit_bug_report_path(report), class: "text-slate-800 hover:underline" %>
+                </div>
+              </td>
+              <td class="px-6 py-4 text-slate-600">
+                <%= BugReportsClient.config.reporter_name_for(report.user).presence || BugReportsClient.config.reporter_email_for(report.user) %>
+              </td>
+              <td class="px-6 py-4"><%= render "rating_badge", value: report.importance %></td>
+              <td class="px-6 py-4"><%= render "status_badge", status: report.status %></td>
+              <td class="px-6 py-4 text-slate-500"><%= report.created_at.strftime("%-d %b %Y") %></td>
+            </tr>
+          <% end %>
+        </tbody>
+      </table>
+    </div>
+
+    <%= render "pagination" %>
+  <% else %>
+    <div class="bg-slate-50 rounded-xl border border-slate-200 p-12 text-center">
+      <h3 class="text-sm font-medium text-slate-900"><%= t("bug_reports_client.index.empty.filtered") %></h3>
+      <p class="mt-1 text-sm text-slate-500">
+        <%= link_to t("bug_reports_client.index.empty.view_all"), all_bug_reports_path, class: "text-slate-800 hover:underline font-medium" %>
+      </p>
+    </div>
+  <% end %>
+</div>

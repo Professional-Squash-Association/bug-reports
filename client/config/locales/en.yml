@@ -1,0 +1,213 @@
+# All user-facing wording for bug_reports_client. Host apps override any
+# subset of these keys in their own config/locales files - no view copying
+# needed for wording changes. Field keys mirror the form schema; a custom
+# schema field picks up wording from bug_reports_client.fields.<field>.*.
+en:
+  bug_reports_client:
+    type_nouns:
+      bug: "bug report"
+      feature: "feature request"
+
+    titles:
+      new: "Report a Bug or Request a Feature"
+      index: "My Reports"
+      all: "All Reports"
+
+    new:
+      heading: "Report a Bug or Request a Feature"
+      subheading: "We'll create a ticket and notify you when it's resolved."
+      intro: "Please fill in as much as you can - it really helps us address your report."
+      my_reports: "My Reports"
+
+    index:
+      heading: "My Reports"
+      subheading: "Track the status of the bugs and features you've reported."
+      new_report: "New report"
+      all_reports: "All Reports"
+      table:
+        title: "Title"
+        priority: "Priority"
+        status: "Status"
+        submitted: "Submitted"
+      empty:
+        filtered: "No reports match this filter."
+        view_all: "View all reports"
+        none: "You haven't submitted any reports yet."
+        prompt: "Found a bug or have an idea?"
+        submit: "Submit a report"
+
+    all:
+      heading: "All Reports"
+      subheading: "Every report submitted from this app."
+      reporter: "Reporter"
+
+    edit:
+      back: "Back to My Reports"
+      submitted_at: "Submitted %{timestamp}"
+      resolved_notice: "This %{type_noun} has been resolved. The details below are shown for reference only."
+
+    form:
+      errors_heading: "Please fix the following errors:"
+      overview: "Overview"
+      report_type:
+        label: "What are you reporting?"
+        prompt: "Select report type"
+        bug: "Bug - something isn't working"
+        feature: "Feature request - an idea or improvement"
+        bug_title: "Bug"
+        bug_description: "Something isn't working"
+        feature_title: "Feature request"
+        feature_description: "An idea or improvement"
+        locked: "The report type can't be changed after submission."
+      title:
+        label: "What's the short summary?"
+        help: "A brief one-line summary."
+        bug_placeholder: "e.g. Page not loading on mobile"
+        feature_placeholder: "e.g. Add a way to export my data"
+      severity:
+        label: "How serious is this?"
+        prompt: "Select severity"
+        low: "Low - minor or cosmetic issue"
+        medium: "Medium - it works, but something is off"
+        high: "High - a key feature is broken, but there's a workaround"
+        critical: "Critical - something important is completely broken"
+      related_error:
+        label: "Is this about a problem you ran into?"
+        prompt: "Not related / not sure"
+        help: "We noticed something went wrong for you recently. Linking it helps us find the cause much faster."
+        option_with_activity: "Something went wrong while %{activity}"
+        option_generic: "Something went wrong"
+      screenshots:
+        label: "Screenshots or mockups"
+        hint: "(optional, up to %{max})"
+        replace_notice: "Uploading new images will replace the existing ones."
+        drop_prompt: "Drag and drop images here, or click to browse"
+        drop_hint: "Up to %{max} images"
+        limit: "You can attach a maximum of %{max} images."
+      optional: "(optional)"
+      select_prompt: "Select an option"
+      submit: "Submit Report"
+      update: "Update Report"
+      submitting: "Submitting..."
+
+    sections:
+      about_the_bug: "About the Bug"
+      behaviour: "Expected vs Actual Behaviour"
+      reproduction: "Reproduction Details"
+      your_idea: "Your Idea"
+      impact_and_frequency: "Impact & Frequency"
+      success_criteria_and_risks: "Success Criteria & Risks"
+      additional_information: "Additional Information"
+
+    fields:
+      impact:
+        label: "Who does this affect and why does it matter?"
+        placeholder: "e.g. I can't complete my task because the page never finishes loading"
+        help: "Help us understand who's affected and the real-world impact."
+      expected_behaviour:
+        label: "What should happen?"
+        placeholder: "e.g. The page should load and show the latest information"
+      actual_behaviour:
+        label: "What actually happens?"
+        placeholder: "e.g. The page shows an error message or stays blank"
+      steps_to_reproduce:
+        label: "How can we see this?"
+        placeholder: "1. Go to the page\n2. Try to use the filter\n3. Notice it doesn't work"
+        help: "Numbered steps are ideal, but describe it however makes sense."
+      specific_examples:
+        label: "Specific examples"
+        placeholder: "Any specific records, names, or dates involved"
+        help: "Any specific examples that show the problem."
+      page_url:
+        label: "Page or URL"
+        placeholder: "e.g. https://example.com/some/page"
+      browser:
+        label: "Browser"
+        prompt: "Select browser"
+      additional_context:
+        label: "Anything else?"
+        placeholder: "Any other context, links, or related requests"
+      priority:
+        label: "How important is this to you?"
+        prompt: "Select priority"
+      problem:
+        label: "What problem does this solve?"
+        placeholder: "e.g. There's no easy way to see everything in one place, so I keep missing things."
+        help: "Tell us about the pain point or frustration this would fix."
+      solution:
+        label: "What would the ideal solution look like?"
+        placeholder: "e.g. Add a page that lists everything with the key details."
+        help: "Don't worry about technical details - just describe what you'd want to happen."
+      time_per_occurrence:
+        label: "How long does it currently take each time?"
+        prompt: "Select an estimate"
+      frequency:
+        label: "How often does this come up?"
+        prompt: "Select frequency"
+      people_affected:
+        label: "How many people would this help?"
+        placeholder: "e.g. just me, or lots of users"
+      user_story:
+        label: "Who benefits and how?"
+        placeholder: "e.g. As a user, I want to see everything in one place, so that I never miss anything."
+      done_criteria:
+        label: "How would we know this is done?"
+        placeholder: "- I can see everything on one page\n- Each item shows the key details"
+      edge_cases:
+        label: "Anything that might complicate this?"
+        placeholder: "e.g. What should happen if something is rescheduled or cancelled?"
+
+    flashes:
+      created: "%{type_noun} submitted successfully. We'll notify you when it's resolved."
+      updated: "%{type_noun} updated successfully."
+      submit_failed: "Unable to submit your report. Please try again later."
+      only_open_editable: "Only open %{type_noun}s can be updated."
+      dismissed: "%{type_noun} notification dismissed."
+      not_permitted: "You do not have permission for this action."
+
+    alerts:
+      resolved_html: "Your %{type_noun} <span class=\"font-medium\">\"%{title}\"</span> has been resolved."
+      dismiss: "Dismiss"
+
+    filters:
+      type_label: "Type"
+      all: "All"
+      open: "Open"
+      resolved: "Resolved"
+      all_types: "All types"
+      bugs: "Bugs"
+      features: "Features"
+
+    badges:
+      bug: "Bug"
+      feature: "Feature"
+      open: "Open"
+      resolved: "Resolved"
+
+    pagination:
+      previous: "Previous"
+      next: "Next"
+
+    # Verbs for the human-readable "what you were doing" descriptions built
+    # from the controller/action where an error was captured.
+    activities:
+      index: "viewing"
+      show: "viewing"
+      new: "adding to"
+      create: "saving to"
+      edit: "editing"
+      update: "saving changes to"
+      destroy: "deleting from"
+      other: "using"
+
+    errors:
+      required_field: "%{field} can't be blank"
+      too_many_screenshots: "You can attach a maximum of %{max} images"
+      screenshot_type: "%{filename} is not a supported image type"
+      screenshot_size: "%{filename} is too large (maximum %{max_mb} MB)"
+
+    description:
+      severity: "Severity"
+      screenshots: "Screenshots"
+      reported_by: "Reported by"
+      related_error: "Related captured error"

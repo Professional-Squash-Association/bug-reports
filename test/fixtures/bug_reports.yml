@@ -7,7 +7,7 @@ pending_report:
   reporter_name: Test User
   callback_url: https://secure.example.com/api/bug_report_updates
   status: pending
-  github_repo: Professional-Squash-Association/secure
+  github_repo: example-org/secure
 
 closed_report:
   title: Old bug
@@ -18,9 +18,9 @@ closed_report:
   reporter_name: Test User
   callback_url: https://secure.example.com/api/bug_report_updates
   status: closed
-  github_repo: Professional-Squash-Association/secure
+  github_repo: example-org/secure
   github_issue_number: 42
-  github_issue_url: https://github.com/Professional-Squash-Association/secure/issues/42
+  github_issue_url: https://github.com/example-org/secure/issues/42
 
 feature_report:
   title: Add dark mode
@@ -32,4 +32,4 @@ feature_report:
   reporter_external: true
   callback_url: https://secure.example.com/api/bug_report_updates
   status: pending
-  github_repo: Professional-Squash-Association/secure
+  github_repo: example-org/secure

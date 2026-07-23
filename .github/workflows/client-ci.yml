@@ -1,0 +1,31 @@
+# CI for the bug_reports_client engine that lives in client/. Runs the
+# engine's own test suite (dummy host app, SQLite) whenever the engine
+# changes.
+name: Client Engine CI
+
+on:
+  pull_request:
+    paths: [ "client/**" ]
+  push:
+    branches: [ main ]
+    paths: [ "client/**" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: client
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+          working-directory: client
+
+      - name: Run engine tests
+        run: bundle exec rake test

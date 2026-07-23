@@ -1,0 +1,185 @@
+<%# Schema-driven report form. Fields come from the active form schema
+    (host config/bug_report_form.yml or the engine default), grouped into
+    sections. Bug and feature groups are toggled client-side by the
+    bug-reports-client--report-type Stimulus controller; the hidden group's
+    inputs are disabled so they neither submit nor block validation. %>
+<% readonly = bug_report.persisted? && !bug_report.open? %>
+<% schema = BugReportsClient.form_schema %>
+<% config = BugReportsClient.config %>
+<% multi_type = schema.report_types.size > 1 %>
+
+<%= form_with model: bug_report,
+    url: bug_report.persisted? ? bug_report_path(bug_report) : bug_reports_path,
+    class: "space-y-6",
+    data: {
+      turbo_action: "replace",
+      controller: "bug-reports-client--report-type",
+      "bug-reports-client--report-type-readonly-value": readonly,
+      "bug-reports-client--report-type-bug-summary-value": t("bug_reports_client.form.title.bug_placeholder"),
+      "bug-reports-client--report-type-feature-summary-value": t("bug_reports_client.form.title.feature_placeholder")
+    } do |f| %>
+  <% if bug_report.errors.any? %>
+    <div class="bg-red-50 border border-red-200 rounded-lg p-4" data-controller="bug-reports-client--error-summary">
+      <div class="flex gap-3">
+        <div class="flex-shrink-0">
+          <svg class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <div>
+          <p class="text-sm font-medium text-red-800"><%= t("bug_reports_client.form.errors_heading") %></p>
+          <ul class="mt-1 text-sm text-red-700 list-disc list-inside">
+            <% bug_report.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <%# ---- Shared: what are you reporting + title ---- %>
+  <div class="bg-slate-50 rounded-xl p-6">
+    <h3 class="text-lg font-semibold text-slate-900 mb-6"><%= t("bug_reports_client.form.overview") %></h3>
+
+    <div class="grid grid-cols-1 gap-4">
+      <% if multi_type %>
+        <div>
+          <span class="<%= brc_label_classes %>"><%= t("bug_reports_client.form.report_type.label") %> <span class="text-orange-500">*</span></span>
+          <%# Radio cards: red for bugs, blue for feature requests. The model
+              defaults report_type to "bug", so a bug card starts selected.
+              Once submitted the type is locked (the GitHub issue is already
+              filed as that type) - cards disable and the unselected one dims. %>
+          <% type_locked = readonly || bug_report.persisted? %>
+          <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            <% schema.report_types.each do |type| %>
+              <% feature = type == "feature" %>
+              <% selected = (bug_report.report_type.presence || schema.report_types.first) == type %>
+              <label class="<%= type_locked ? "cursor-default" : "cursor-pointer" %>">
+                <%= f.radio_button :report_type, type, class: "peer sr-only", disabled: type_locked,
+                    data: { "bug-reports-client--report-type-target": "type", action: "change->bug-reports-client--report-type#toggle" } %>
+                <div class="flex h-full items-start gap-3 rounded-xl border-2 border-slate-200 bg-white p-4 transition-colors <%= "hover:border-slate-300" unless type_locked %> <%= "opacity-50" if type_locked && !selected %> <%= feature ? "peer-checked:border-blue-400 peer-checked:bg-blue-50" : "peer-checked:border-red-400 peer-checked:bg-red-50" %>">
+                  <% if feature %>
+                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                    </svg>
+                  <% else %>
+                    <svg class="mt-0.5 h-5 w-5 flex-shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                  <% end %>
+                  <div>
+                    <p class="text-sm font-semibold text-slate-900"><%= t("bug_reports_client.form.report_type.#{type}_title") %></p>
+                    <p class="text-xs text-slate-500"><%= t("bug_reports_client.form.report_type.#{type}_description") %></p>
+                  </div>
+                </div>
+              </label>
+            <% end %>
+          </div>
+          <% if type_locked && !readonly %>
+            <p class="mt-1 text-xs text-slate-400"><%= t("bug_reports_client.form.report_type.locked") %></p>
+          <% end %>
+        </div>
+      <% else %>
+        <%= f.hidden_field :report_type, value: schema.report_types.first,
+            data: { "bug-reports-client--report-type-target": "type" } %>
+      <% end %>
+
+      <div>
+        <%= f.label :title, class: brc_label_classes do %><%= t("bug_reports_client.form.title.label") %> <span class="text-orange-500">*</span><% end %>
+        <%= f.text_field :title, class: brc_input_classes, required: true, disabled: readonly,
+            placeholder: t("bug_reports_client.form.title.bug_placeholder"),
+            data: { "bug-reports-client--report-type-target": "summary" } %>
+        <p class="mt-1 text-xs text-slate-400"><%= t("bug_reports_client.form.title.help") %></p>
+      </div>
+    </div>
+  </div>
+
+  <%# "Did it relate to this error?" - only appears when the reporter hit
+      captured 500s recently (engine-owned partial). %>
+  <%= render "bug_reports_client/bug_reports/related_error", bug_report: bug_report, recent_error_events: @recent_error_events %>
+
+  <%# ---- Per-type field groups, rendered from the schema ---- %>
+  <% schema.report_types.each do |report_type| %>
+    <% target = report_type == "feature" ? "featureFields" : "bugFields" %>
+    <% active = (bug_report.report_type.presence || schema.report_types.first) == report_type %>
+    <div data-<%= "bug-reports-client--report-type-target" %>="<%= target %>" class="space-y-6 <%= "hidden" unless active %>">
+      <% sections = schema.sections_for(report_type) %>
+      <% sections.each_with_index do |(section, fields), section_index| %>
+        <div class="bg-slate-50 rounded-xl p-6">
+          <% if section.present? %>
+            <h3 class="text-lg font-semibold text-slate-900 mb-6">
+              <%= t("bug_reports_client.sections.#{section}", default: section.humanize) %>
+            </h3>
+          <% end %>
+
+          <div class="grid grid-cols-1 gap-4">
+            <%# Severity is a first-class column (the API requires it for bugs),
+                so it renders ahead of the schema fields in the first bug section. %>
+            <% if report_type == "bug" && section_index.zero? && config.ask_severity %>
+              <div>
+                <%= f.label :severity, class: brc_label_classes do %><%= t("bug_reports_client.form.severity.label") %> <span class="text-orange-500">*</span><% end %>
+                <%= f.select :severity,
+                    BugReportsClient::BugReport.severities.keys.map { |severity| [ t("bug_reports_client.form.severity.#{severity}"), severity ] },
+                    { include_blank: t("bug_reports_client.form.severity.prompt") },
+                    { class: brc_input_classes, required: true, disabled: readonly } %>
+              </div>
+            <% end %>
+
+            <% fields.each do |field| %>
+              <%= render "bug_reports_client/bug_reports/field_#{field.type}",
+                  field: field, bug_report: bug_report, readonly: readonly %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <%# ---- Shared: screenshots (drag-and-drop with previews) ---- %>
+  <% if config.screenshots_enabled %>
+    <div class="bg-slate-50 rounded-xl p-6">
+      <div data-controller="bug-reports-client--screenshot-dropzone"
+           data-<%= "bug-reports-client--screenshot-dropzone-max-value" %>="<%= config.max_screenshots %>"
+           data-<%= "bug-reports-client--screenshot-dropzone-limit-message-value" %>="<%= t("bug_reports_client.form.screenshots.limit", max: config.max_screenshots) %>"
+           data-<%= "bug-reports-client--screenshot-dropzone-max-bytes-value" %>="<%= config.max_screenshot_size %>"
+           data-<%= "bug-reports-client--screenshot-dropzone-size-message-value" %>="<%= t("bug_reports_client.errors.screenshot_size", filename: "%{filename}", max_mb: config.max_screenshot_size / (1024 * 1024)) %>">
+        <%= f.label :screenshots, class: brc_label_classes do %><%= t("bug_reports_client.form.screenshots.label") %> <span class="font-normal normal-case text-slate-400"><%= t("bug_reports_client.form.screenshots.hint", max: config.max_screenshots) %></span><% end %>
+        <% if bug_report.persisted? && bug_report.screenshots.attached? %>
+          <div class="flex flex-wrap gap-2 mb-3">
+            <% bug_report.screenshots.each do |screenshot| %>
+              <%# Blob URLs resolve via the host's routes, not the engine's. %>
+              <%= image_tag main_app.rails_blob_path(screenshot), class: "h-16 w-16 object-cover rounded-lg border border-slate-200" %>
+            <% end %>
+          </div>
+          <% unless readonly %>
+            <p class="mb-2 text-xs text-slate-400"><%= t("bug_reports_client.form.screenshots.replace_notice") %></p>
+          <% end %>
+        <% end %>
+        <% unless readonly %>
+          <div data-<%= "bug-reports-client--screenshot-dropzone-target" %>="zone" role="button" tabindex="0"
+               data-action="click-><%= "bug-reports-client--screenshot-dropzone" %>#browse keydown-><%= "bug-reports-client--screenshot-dropzone" %>#keydown dragover-><%= "bug-reports-client--screenshot-dropzone" %>#dragover dragleave-><%= "bug-reports-client--screenshot-dropzone" %>#dragleave drop-><%= "bug-reports-client--screenshot-dropzone" %>#drop"
+               class="flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-slate-300 bg-white px-4 py-6 text-center transition-colors">
+            <svg class="h-6 w-6 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+            <p class="text-sm text-slate-600"><%= t("bug_reports_client.form.screenshots.drop_prompt") %></p>
+            <p class="text-xs text-slate-400"><%= t("bug_reports_client.form.screenshots.drop_hint", max: config.max_screenshots) %></p>
+          </div>
+          <%= f.file_field :screenshots, accept: "image/*", multiple: true, class: "hidden",
+              data: { "bug-reports-client--screenshot-dropzone-target": "input", action: "change->bug-reports-client--screenshot-dropzone#picked" } %>
+          <div data-<%= "bug-reports-client--screenshot-dropzone-target" %>="previews" class="mt-3 flex flex-wrap gap-3"></div>
+          <p data-<%= "bug-reports-client--screenshot-dropzone-target" %>="message" class="mt-1 text-xs text-red-600"></p>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% unless readonly %>
+    <div class="flex justify-end gap-3">
+      <%= f.submit bug_report.persisted? ? t("bug_reports_client.form.update") : t("bug_reports_client.form.submit"),
+          class: "inline-flex items-center rounded-lg bg-slate-800 px-4 py-2 text-sm font-medium text-white hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-slate-500 cursor-pointer",
+          data: { turbo_submits_with: t("bug_reports_client.form.submitting") } %>
+    </div>
+  <% end %>
+<% end %>

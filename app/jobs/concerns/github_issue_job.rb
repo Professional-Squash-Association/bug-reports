@@ -1,5 +1,7 @@
 # Shared behavior for jobs that interact with GitHub issues.
-# Provides a configured Octokit client and common body/label builders.
+# Provides record lookup, a configured Octokit client, and retry policy.
+# Payload building lives in GithubIssuePayload so previews and dry runs
+# render exactly what the jobs would send.
 module GithubIssueJob
   extend ActiveSupport::Concern
 
@@ -16,18 +18,5 @@ module GithubIssueJob
 
   def github_client
     GithubApp.client
-  end
-
-  def build_issue_body(bug_report)
-    "#{bug_report.description}\n\n## Reported by\n#{bug_report.reporter_name} (#{bug_report.reporter_email})"
-  end
-
-  # The issue "type" (set separately) already conveys bug vs feature, so these
-  # labels only mark provenance, severity (bugs only), and external reporters.
-  def build_labels(bug_report)
-    labels = [ bug_report.feature? ? "feature-request" : "bug-report" ]
-    labels << "severity:#{bug_report.severity}" if bug_report.severity.present?
-    labels << "external-user" if bug_report.reporter_external?
-    labels
   end
 end

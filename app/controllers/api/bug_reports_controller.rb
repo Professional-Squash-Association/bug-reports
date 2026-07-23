@@ -1,4 +1,4 @@
-# Handles bug report submissions from PSA applications.
+# Handles bug report submissions from consuming applications.
 # Persists the report, enqueues a job to create the GitHub issue,
 # and returns a confirmation to the calling app.
 module Api
