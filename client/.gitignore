@@ -6,3 +6,4 @@ test/dummy/log/
 test/dummy/storage/
 test/dummy/tmp/
 test/tmp/
+*.gem
