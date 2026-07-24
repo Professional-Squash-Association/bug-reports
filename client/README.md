@@ -55,7 +55,7 @@ Environment variables (or set the equivalents in the initializer):
 | `BUG_REPORT_API_URL` | Base URL of the bug-reports API, e.g. `https://bugs.example.com/api` |
 | `BUG_REPORT_API_KEY` | This app's API token (Bearer auth) |
 | `BUG_REPORT_WEBHOOK_SECRET` | This app's webhook secret (HMAC verification of closure callbacks) |
-| `APP_HOST` | Public HTTPS origin of this app (callback URL + screenshot links) |
+| `BUG_REPORT_APP_HOST` | Public HTTPS origin of this app (callback URL + screenshot links). Falls back to `APP_HOST`; prefer this or `config.app_host` if `APP_HOST` serves other purposes |
 
 On the API side, the app needs an `ApiKey` record and an entry in
 `config/repo_mapping.yml` mapping its `source` name to a GitHub repository.

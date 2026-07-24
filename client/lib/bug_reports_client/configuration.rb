@@ -54,7 +54,11 @@ module BugReportsClient
       @api_url = ENV.fetch("BUG_REPORT_API_URL", "http://localhost:3002/api")
       @api_key = ENV["BUG_REPORT_API_KEY"]
       @webhook_secret = ENV["BUG_REPORT_WEBHOOK_SECRET"]
-      @app_host = ENV["APP_HOST"]
+      # A dedicated variable takes precedence: APP_HOST is commonly shared
+      # with other host-app concerns (mailers, OIDC issuers) in formats the
+      # engine cannot assume, so hosts can isolate the engine with
+      # BUG_REPORT_APP_HOST - or set config.app_host explicitly.
+      @app_host = ENV["BUG_REPORT_APP_HOST"] || ENV["APP_HOST"]
       @app_name = nil
       @source = nil
       @mount_path = "/bug_reports"

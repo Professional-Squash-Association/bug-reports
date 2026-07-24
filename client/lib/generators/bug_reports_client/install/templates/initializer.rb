@@ -8,7 +8,8 @@ BugReportsClient.configure do |config|
   config.source = "<%= Rails.application.class.module_parent_name.underscore %>"
 
   # The public HTTPS origin of this app, used for the closure callback URL and
-  # screenshot links in GitHub issues. Defaults to ENV["APP_HOST"].
+  # screenshot links in GitHub issues. Defaults to ENV["BUG_REPORT_APP_HOST"],
+  # then ENV["APP_HOST"] - set it explicitly if APP_HOST serves other purposes.
   # config.app_host = "https://myapp.example.com"
 
   # Who counts as an admin (can see /bug_reports/all).

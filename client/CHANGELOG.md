@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.1 (unreleased)
+
+- `BUG_REPORT_APP_HOST` takes precedence over the shared `APP_HOST` env var
+  for the engine's public origin. `APP_HOST` is often owned by other host
+  concerns (mailers, OIDC issuers) in formats the engine cannot assume -
+  prefer the dedicated variable or an explicit `config.app_host`.
+
 ## 0.1.0 (23 July 2026)
 
 - Initial release: mountable engine with a schema-driven report form
