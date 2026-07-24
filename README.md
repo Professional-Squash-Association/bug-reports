@@ -92,7 +92,23 @@ Error reports (`report_type: "error"`) are machine-generated 500 captures
 from the client engine: no reporter details or callback URL, deduplicated by
 `source` + `fingerprint` - repeats of an open error bump its
 `occurrence_count` rather than filing duplicate issues, and a recurrence
-after the issue is closed files a fresh one.
+after the issue is closed files a fresh one. Deleting an issue on GitHub
+(rather than closing it) is also treated as terminal: the report closes and
+a recurring error files a fresh issue.
+
+### Issue types and labels
+
+Issues are created with a GitHub **issue type** matching the report
+(`bug`/`feature`), plus labels: `bug-report`/`feature-request`/
+`error-report` for provenance, `severity:*` for bugs and errors, and
+`external-user` when the reporter is outside your team.
+
+GitHub validates issue types against your organisation's configured list
+(Settings -> Issue types) and rejects unknown values, so **error captures
+default to the `bug` type** - the `error-report` label distinguishes them.
+If you'd like errors as a first-class type: create one in your
+organisation's issue-type settings (e.g. "Error"), then set
+`GITHUB_ERROR_ISSUE_TYPE=Error` and error captures will use it.
 
 ```bash
 curl -X POST http://localhost:3002/api/bug_reports \
