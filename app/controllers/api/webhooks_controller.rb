@@ -9,7 +9,11 @@ module Api
       event = request.headers["X-GitHub-Event"]
       payload = JSON.parse(request.body.read)
 
-      if event == "issues" && payload["action"] == "closed"
+      # Closure and deletion are both terminal for a report. Deletion also
+      # clears the issue reference so nothing points at (or tries to sync) a
+      # dead issue, and a recurring error files a fresh issue rather than
+      # counting occurrences against one nobody can see.
+      if event == "issues" && %w[closed deleted].include?(payload["action"])
         bug_report = BugReport.find_by(
           github_repo: payload["repository"]["full_name"],
           github_issue_number: payload["issue"]["number"]
@@ -17,6 +21,7 @@ module Api
 
         if bug_report
           bug_report.update!(status: "closed")
+          bug_report.update!(github_issue_number: nil, github_issue_url: nil) if payload["action"] == "deleted"
           # Error reports have no reporter to notify (no callback_url).
           NotifySourceAppJob.perform_later(bug_report.id) if bug_report.callback_url.present?
         end

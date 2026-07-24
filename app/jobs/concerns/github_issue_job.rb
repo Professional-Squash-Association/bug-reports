@@ -8,6 +8,9 @@ module GithubIssueJob
   included do
     queue_as :default
     retry_on StandardError, wait: :polynomially_longer, attempts: 5
+    # An issue deleted on GitHub is gone for good - retrying a sync against
+    # it only produces five failures. (Declared after retry_on so it wins.)
+    discard_on Octokit::NotFound
   end
 
   private
