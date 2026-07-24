@@ -17,7 +17,10 @@ export default class extends Controller {
     max: { type: Number, default: 5 },
     maxBytes: { type: Number, default: 10_485_760 },
     limitMessage: String,
-    sizeMessage: String
+    sizeMessage: String,
+    // Classes toggled on the zone while a file is dragged over it. Dark
+    // themes should override via the Stimulus value (space-separated).
+    highlightClasses: { type: String, default: "border-slate-500 bg-slate-100" }
   }
 
   connect() {
@@ -47,11 +50,15 @@ export default class extends Controller {
 
   dragover(event) {
     event.preventDefault()
-    this.zoneTarget.classList.add("border-slate-500", "bg-slate-100")
+    this.zoneTarget.classList.add(...this.highlightClassList())
   }
 
   dragleave() {
-    this.zoneTarget.classList.remove("border-slate-500", "bg-slate-100")
+    this.zoneTarget.classList.remove(...this.highlightClassList())
+  }
+
+  highlightClassList() {
+    return this.highlightClassesValue.split(/\s+/).filter(Boolean)
   }
 
   drop(event) {

@@ -208,7 +208,9 @@ Three Stimulus controllers ship with the engine and are pinned into your
 importmap automatically: `bug-reports-client--report-type` toggles the
 bug/feature field groups, `bug-reports-client--screenshot-dropzone` powers
 the drag-and-drop screenshot picker with thumbnail previews (the hidden file
-input stays the submission source, so custom forms can ignore it), and
+input stays the submission source, so custom forms can ignore it; its
+drag-over highlight is themeable via the `highlight-classes` Stimulus
+value), and
 `bug-reports-client--file-limit` is a standalone file-count guard for
 hand-rolled forms. Any standard Stimulus setup that loads controllers from
 the importmap (`eagerLoadControllersFrom` / `lazyLoadControllersFrom`) picks
