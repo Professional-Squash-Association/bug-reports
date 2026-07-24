@@ -21,12 +21,13 @@ class GithubIssuePayload
     }
   end
 
-  # GitHub issue types are a fixed organisation-level list ("bug" and
-  # "feature" exist; "error" does not, and an unknown type fails the whole
-  # issue creation with a 422). Error captures are bugs as far as GitHub is
-  # concerned - the error-report label carries the distinction.
+  # GitHub validates the issue type against the organisation's configured
+  # list and rejects unknown values with a 422, failing the whole issue.
+  # Error captures therefore default to the "bug" type (the error-report
+  # label carries the distinction); organisations that define a custom type
+  # for them can opt in via GITHUB_ERROR_ISSUE_TYPE (e.g. "Error").
   def issue_type
-    @bug_report.error? ? "bug" : @bug_report.report_type
+    @bug_report.error? ? ENV.fetch("GITHUB_ERROR_ISSUE_TYPE", "bug") : @bug_report.report_type
   end
 
   def body

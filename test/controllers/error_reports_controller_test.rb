@@ -70,6 +70,15 @@ class ErrorReportsControllerTest < ActionDispatch::IntegrationTest
     assert_includes payload[:labels], "error-report"
   end
 
+  test "a custom error issue type can be configured" do
+    post api_error_reports_url, params: @payload.to_json, headers: @headers
+
+    ENV["GITHUB_ERROR_ISSUE_TYPE"] = "Error"
+    assert_equal "Error", GithubIssuePayload.for(BugReport.last)[:type]
+  ensure
+    ENV.delete("GITHUB_ERROR_ISSUE_TYPE")
+  end
+
   test "requires authentication" do
     post api_error_reports_url, params: @payload.to_json, headers: { "Content-Type" => "application/json" }
     assert_response :unauthorized
