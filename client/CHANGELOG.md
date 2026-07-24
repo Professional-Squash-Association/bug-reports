@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.1.1 (unreleased)
+## 0.1.1 (24 July 2026)
 
 - The screenshot dropzone's drag-over highlight classes are configurable via
   the `highlight-classes` Stimulus value, so dark-themed hosts can supply
