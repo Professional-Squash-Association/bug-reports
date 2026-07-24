@@ -17,8 +17,16 @@ class GithubIssuePayload
       title: @bug_report.title,
       body: body,
       labels: labels,
-      type: @bug_report.report_type
+      type: issue_type
     }
+  end
+
+  # GitHub issue types are a fixed organisation-level list ("bug" and
+  # "feature" exist; "error" does not, and an unknown type fails the whole
+  # issue creation with a 422). Error captures are bugs as far as GitHub is
+  # concerned - the error-report label carries the distinction.
+  def issue_type
+    @bug_report.error? ? "bug" : @bug_report.report_type
   end
 
   def body

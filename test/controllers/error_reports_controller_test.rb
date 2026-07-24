@@ -60,6 +60,16 @@ class ErrorReportsControllerTest < ActionDispatch::IntegrationTest
     assert_equal 2, BugReport.where(fingerprint: "abc123def456").count
   end
 
+  test "error issues are filed with the bug issue type" do
+    # GitHub rejects unknown org-level issue types (422), and "error" is not
+    # one - the error-report label carries the distinction instead.
+    post api_error_reports_url, params: @payload.to_json, headers: @headers
+
+    payload = GithubIssuePayload.for(BugReport.last)
+    assert_equal "bug", payload[:type]
+    assert_includes payload[:labels], "error-report"
+  end
+
   test "requires authentication" do
     post api_error_reports_url, params: @payload.to_json, headers: { "Content-Type" => "application/json" }
     assert_response :unauthorized
