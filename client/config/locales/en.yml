@@ -163,11 +163,14 @@ en:
       submit_failed: "Unable to submit your report. Please try again later."
       only_open_editable: "Only open %{type_noun}s can be updated."
       dismissed: "%{type_noun} notification dismissed."
+      dismissed_all: "All resolved alerts dismissed."
       not_permitted: "You do not have permission for this action."
 
     alerts:
       resolved_html: "Your %{type_noun} <span class=\"font-medium\">\"%{title}\"</span> has been resolved."
+      resolved_many: "%{count} of your reports have been resolved:"
       dismiss: "Dismiss"
+      dismiss_all: "Dismiss all"
 
     filters:
       type_label: "Type"

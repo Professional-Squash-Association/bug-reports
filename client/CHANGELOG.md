@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.2 (16 August 2026)
+
+- Resolved-report alerts no longer stack. When a user has two or more
+  resolved, undismissed reports, the host layout shows a single collapsed
+  banner listing every title with one "Dismiss all" button (new
+  `PATCH /dismiss_all` route). A single resolved report keeps its own banner
+  and per-report Dismiss as before. Hosts that copied `_alerts.html.erb` via
+  the views generator will need to re-copy it to pick this up.
+
 ## 0.1.1 (24 July 2026)
 
 - The screenshot dropzone's drag-over highlight classes are configurable via

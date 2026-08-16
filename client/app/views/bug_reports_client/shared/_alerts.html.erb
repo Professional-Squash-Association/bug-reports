@@ -1,7 +1,12 @@
 <%# Dismissable alerts for resolved reports. Rendered in HOST layouts via the
-    bug_report_alerts helper, so routes go through the mount proxy. %>
+    bug_report_alerts helper, so routes go through the mount proxy.
+
+    One resolved report renders as its own banner. Two or more collapse into a
+    single banner listing every title with one "Dismiss all" button, so a
+    batch of fixes does not stack a wall of green boxes on every page. %>
 <div id="bug_report_alerts" class="mb-6">
-  <% resolved_bug_reports.each do |report| %>
+  <% if resolved_bug_reports.size == 1 %>
+    <% report = resolved_bug_reports.first %>
     <div id="bug_report_<%= report.id %>" class="flex items-center justify-between p-3 mb-2 border border-green-200 rounded-lg bg-green-50">
       <div class="flex items-center gap-2">
         <svg class="flex-shrink-0 w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -16,6 +21,33 @@
           class: "text-xs text-green-600 hover:text-green-800 font-medium flex-shrink-0 cursor-pointer",
           data: { turbo_stream: true } do %>
         <%= t("bug_reports_client.alerts.dismiss") %>
+      <% end %>
+    </div>
+  <% else %>
+    <div id="bug_report_alerts_collapsed" class="flex items-start justify-between gap-4 p-3 mb-2 border border-green-200 rounded-lg bg-green-50">
+      <div class="flex items-start gap-2 min-w-0">
+        <svg class="flex-shrink-0 w-4 h-4 mt-0.5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <div class="text-sm text-green-800 min-w-0">
+          <p class="font-medium">
+            <%= t("bug_reports_client.alerts.resolved_many", count: resolved_bug_reports.size) %>
+          </p>
+          <ul class="mt-1 space-y-0.5 list-disc list-inside text-green-700">
+            <% resolved_bug_reports.each do |report| %>
+              <li id="bug_report_<%= report.id %>" class="truncate">
+                <span class="text-green-600"><%= report.type_noun.capitalize %>:</span>
+                <span class="font-medium"><%= report.title %></span>
+              </li>
+            <% end %>
+          </ul>
+        </div>
+      </div>
+      <%= button_to bug_reports_client.dismiss_all_bug_reports_path,
+          method: :patch,
+          class: "text-xs text-green-600 hover:text-green-800 font-medium flex-shrink-0 cursor-pointer whitespace-nowrap",
+          data: { turbo_stream: true } do %>
+        <%= t("bug_reports_client.alerts.dismiss_all") %>
       <% end %>
     </div>
   <% end %>

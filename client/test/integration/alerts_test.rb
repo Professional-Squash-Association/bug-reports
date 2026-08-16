@@ -22,6 +22,33 @@ module BugReportsClient
       assert_match report.title, response.body
     end
 
+    test "two or more resolved reports collapse into one banner with dismiss all" do
+      first = create_bug_report(user: @user, status: "closed", title: "Login button broken")
+      second = create_bug_report(user: @user, status: "closed", title: "Dark mode please")
+
+      sign_in @user
+      get "/"
+
+      assert_response :success
+      assert_select "#bug_report_alerts_collapsed", count: 1
+      # No per-report dismiss forms - just the one dismiss-all form
+      assert_select "form[action=?]", "/bug_reports/#{first.id}", count: 0
+      assert_select "form[action=?]", "/bug_reports/dismiss_all", count: 1
+      assert_match "2 of your reports have been resolved", response.body
+      assert_match "Login button broken", response.body
+      assert_match "Dark mode please", response.body
+    end
+
+    test "a single resolved report keeps its own banner and dismiss button" do
+      report = create_bug_report(user: @user, status: "closed")
+
+      sign_in @user
+      get "/"
+
+      assert_select "#bug_report_alerts_collapsed", count: 0
+      assert_select "form[action=?]", "/bug_reports/#{report.id}", count: 1
+    end
+
     test "no alerts render when nothing is resolved" do
       create_bug_report(user: @user)
 

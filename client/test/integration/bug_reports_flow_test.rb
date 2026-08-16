@@ -341,6 +341,24 @@ module BugReportsClient
       assert_match "bug_report_#{report.id}", response.body
     end
 
+    test "dismiss_all dismisses every resolved report for the current user only" do
+      mine_a = create_bug_report(user: @user, status: "closed")
+      mine_b = create_bug_report(user: @user, status: "closed", title: "Second one")
+      still_open = create_bug_report(user: @user, title: "Not resolved yet")
+      other = create_user(email: "other@example.test")
+      theirs = create_bug_report(user: other, status: "closed", title: "Someone else's")
+
+      sign_in @user
+      patch "/bug_reports/dismiss_all", as: :turbo_stream
+
+      assert_response :success
+      assert mine_a.reload.dismissed_at.present?
+      assert mine_b.reload.dismissed_at.present?
+      assert_nil still_open.reload.dismissed_at
+      assert_nil theirs.reload.dismissed_at
+      assert_match "bug_report_alerts", response.body
+    end
+
     test "the all view is gated by admin_check" do
       sign_in @user
       get "/bug_reports/all"
