@@ -90,6 +90,26 @@ module BugReportsClient
       render :new, status: :unprocessable_entity
     end
 
+    # PATCH /dismiss_all
+    # Dismisses every resolved-and-undismissed alert for the current user in
+    # one go - the action behind the collapsed multi-report banner.
+    def dismiss_all
+      scope = BugReport.where(user: bug_reports_current_user).resolved_and_undismissed
+      # Column write, not update!: see dismiss_bug_report
+      scope.update_all(dismissed_at: Time.current, updated_at: Time.current)
+
+      respond_to do |format|
+        format.turbo_stream do
+          streams = [ turbo_stream.remove("bug_report_alerts") ]
+          streams << render_to_string(partial: "bug_reports_client/shared/after_dismiss", formats: [ :turbo_stream ])
+          render turbo_stream: streams
+        end
+        format.html do
+          redirect_to fallback_root_path, notice: t("bug_reports_client.flashes.dismissed_all")
+        end
+      end
+    end
+
     # PATCH /:id
     # Two cases: dismissing a resolved alert (no bug_report params), or
     # editing an open report (re-syncs the remote issue).

@@ -2,11 +2,14 @@
 #   GET  /bug_reports          - my reports
 #   GET  /bug_reports/new      - the report form
 #   GET  /bug_reports/all      - every report (admins, via config.admin_check)
+#   PATCH /bug_reports/dismiss_all - dismiss every resolved alert at once
 #   POST /bug_reports/webhook  - signed closure callbacks from the API
 BugReportsClient::Engine.routes.draw do
   resources :bug_reports, path: "", only: %i[index new create edit update] do
     collection do
       get :all
+      # Dismiss every resolved alert at once (the collapsed multi-report banner)
+      patch :dismiss_all
     end
   end
 
