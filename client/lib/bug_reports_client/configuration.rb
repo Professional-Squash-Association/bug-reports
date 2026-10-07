@@ -44,6 +44,10 @@ module BugReportsClient
     # limits how often one fingerprint is posted from this app.
     attr_accessor :error_reporting_enabled, :error_ignore, :error_throttle_period
 
+    # Rails.error `source:` values never reported. Defaults to `bin/rails runner`
+    # script errors, which the operator sees in the terminal and which lack an app frame.
+    attr_accessor :ignored_error_sources
+
     # Optional overrides for the form definition and GitHub issue template.
     # When nil, the engine looks for config/bug_report_form.yml and
     # config/bug_report_issue.md in the host app, then falls back to its own
@@ -82,6 +86,7 @@ module BugReportsClient
       @error_reporting_enabled = false
       @error_ignore = []
       @error_throttle_period = 300
+      @ignored_error_sources = [ "application.runner.railties" ]
     end
 
     # The URL the API calls back when a report's GitHub issue is closed.

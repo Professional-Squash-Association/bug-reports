@@ -7,6 +7,8 @@ module BugReportsClient
   #
   #   - Only unhandled errors are captured, and only ones Rails would answer
   #     with a 5xx (RecordNotFound and friends map to 4xx and are skipped).
+  #   - Errors from sources in config.ignored_error_sources are skipped; by
+  #     default that is `bin/rails runner` scripts.
   #   - Errors are fingerprinted by exception class + the top application
   #     backtrace frame (line numbers stripped, so deploys that shift code
   #     around keep the same fingerprint).
@@ -23,6 +25,7 @@ module BugReportsClient
     def report(error, handled:, severity: nil, context: {}, source: nil)
       return if handled
       return unless BugReportsClient.config.error_reporting_enabled
+      return if BugReportsClient.config.ignored_error_sources.include?(source)
       return if ignored?(error)
 
       fingerprint = self.class.fingerprint_for(error)

@@ -224,6 +224,7 @@ Opt in per host and unhandled 500s become GitHub issues, deduplicated:
 config.error_reporting_enabled = true
 config.error_ignore = []          # extra exception class names to skip
 config.error_throttle_period = 300 # seconds between posts per fingerprint
+config.ignored_error_sources = [ "application.runner.railties" ] # the default
 ```
 
 The engine subscribes to the Rails error reporter, so anything that would
@@ -235,6 +236,15 @@ ignored, so deploys don't spawn duplicate issues), throttled through
 slowed down. The API keeps one open issue per fingerprint, counting repeat
 occurrences; when a closed error recurs, a fresh issue is filed (a
 regression deserves new attention).
+
+Errors are also skipped when the `source:` Rails passes to the error
+reporter is in `config.ignored_error_sources`. By default that list holds
+`"application.runner.railties"`, the source Rails uses for unhandled errors
+in `bin/rails runner` scripts: the person running the script already sees the
+error in their terminal, and with no application frame in the backtrace
+every such error would share one fingerprint and merge into one misleading
+issue. Requests and jobs are still captured. Add other sources to skip them
+too, or set the list to `[]` to capture runner errors as well.
 
 Captured errors are also attributed to the signed-in user who hit them
 (stored locally in `bug_report_error_events`, pruned after 30 days). When

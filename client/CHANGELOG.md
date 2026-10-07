@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.3 (7 October 2026)
+
+- Unhandled errors raised by `bin/rails runner` scripts (Rails.error source
+  `"application.runner.railties"`) are no longer reported. They have no
+  application frame, so they all shared one fingerprint and merged into one
+  misleading issue. Requests and jobs are still captured. The skipped sources
+  are configurable via the new `config.ignored_error_sources` setting.
+
 ## 0.1.2 (16 August 2026)
 
 - Resolved-report alerts no longer stack. When a user has two or more

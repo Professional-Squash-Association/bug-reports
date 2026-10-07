@@ -57,6 +57,29 @@ module BugReportsClient
       assert_no_enqueued_jobs(only: ReportErrorJob)
     end
 
+    test "an unhandled error from a rails runner script is not reported" do
+      Rails.error.report(runner_style_error, handled: false, source: "application.runner.railties")
+
+      assert_no_enqueued_jobs(only: ReportErrorJob)
+    end
+
+    test "unhandled errors from requests and jobs are still reported" do
+      Rails.error.report(runner_style_error, handled: false, source: "application.action_dispatch")
+      Rails.error.report(TypeError.new("job failed"), handled: false, source: "application.active_job")
+
+      assert_equal 2, enqueued_jobs.count { |job| job[:job] == ReportErrorJob }
+    end
+
+    test "host-configured ignored sources are respected" do
+      BugReportsClient.config.ignored_error_sources = [ "application.active_job" ]
+
+      Rails.error.report(TypeError.new("job failed"), handled: false, source: "application.active_job")
+      Rails.error.report(runner_style_error, handled: false, source: "application.runner.railties")
+
+      assert_equal 1, enqueued_jobs.count { |job| job[:job] == ReportErrorJob }
+      assert_equal "ArgumentError", enqueued_jobs.last[:args].first["exception_class"]
+    end
+
     test "repeats within the throttle period are not re-enqueued" do
       get "/boom"
       get "/boom"
@@ -178,6 +201,12 @@ module BugReportsClient
       def hostile.message = raise("kaboom")
 
       assert_nil reporter.report(hostile, handled: false)
+    end
+
+    private
+
+    def runner_style_error
+      ArgumentError.new("column players.missing does not exist")
     end
   end
 end
