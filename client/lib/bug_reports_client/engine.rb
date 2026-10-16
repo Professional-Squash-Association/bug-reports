@@ -30,13 +30,10 @@ module BugReportsClient
     # in host views, so layouts can render the resolved-report alerts with a
     # single line.
     #
-    # This must stay in to_prepare, not on_load(:action_controller_base). A gem
-    # that loads ActionController::Base while Bundler is still requiring gems
-    # fires every on_load hook there and then, before engine helpers can be
-    # autoloaded, and the host fails to boot with NameError on
-    # BugReportsHelper (omniauth-rails_csrf_protection 2.x does this on
-    # Rails 8.1). to_prepare runs once autoloading is set up, whatever loaded
-    # ActionController::Base first.
+    # Keep this in to_prepare, not on_load(:action_controller_base): a gem that
+    # loads ActionController::Base during Bundler.require fires on_load hooks
+    # before engine helpers can autoload, and the host fails to boot with
+    # NameError on BugReportsHelper.
     config.to_prepare do
       ActionController::Base.helper BugReportsClient::Engine.helpers
       # Tag requests with the current user so captured 500s can be
