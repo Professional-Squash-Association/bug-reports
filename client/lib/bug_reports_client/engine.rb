@@ -29,13 +29,19 @@ module BugReportsClient
     # Make engine helpers (bug_report_alerts and the badge helpers) available
     # in host views, so layouts can render the resolved-report alerts with a
     # single line.
-    initializer "bug_reports_client.helpers" do
-      ActiveSupport.on_load(:action_controller_base) do
-        helper BugReportsClient::Engine.helpers
-        # Tag requests with the current user so captured 500s can be
-        # attributed to whoever hit them (see ErrorContext).
-        include BugReportsClient::ErrorContext
-      end
+    #
+    # This must stay in to_prepare, not on_load(:action_controller_base). A gem
+    # that loads ActionController::Base while Bundler is still requiring gems
+    # fires every on_load hook there and then, before engine helpers can be
+    # autoloaded, and the host fails to boot with NameError on
+    # BugReportsHelper (omniauth-rails_csrf_protection 2.x does this on
+    # Rails 8.1). to_prepare runs once autoloading is set up, whatever loaded
+    # ActionController::Base first.
+    config.to_prepare do
+      ActionController::Base.helper BugReportsClient::Engine.helpers
+      # Tag requests with the current user so captured 500s can be
+      # attributed to whoever hit them (see ErrorContext).
+      ActionController::Base.include BugReportsClient::ErrorContext
     end
 
     # Automatic 500 capture: subscribe to the Rails error reporter. The

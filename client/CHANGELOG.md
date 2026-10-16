@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.4 (16 October 2026)
+
+- The engine's helpers and the error-context `before_action` are now added
+  to `ActionController::Base` in `config.to_prepare`, not in an
+  `on_load(:action_controller_base)` hook. A gem that loads
+  `ActionController::Base` while Bundler is still requiring gems ran the
+  hook before engine helpers could autoload, and the host failed to boot
+  with `NameError: uninitialized constant BugReportsClient::BugReportsHelper`.
+  `omniauth-rails_csrf_protection` 2.x does this on Rails 8.1. Hosts need no
+  changes.
+
 ## 0.1.3 (7 October 2026)
 
 - Unhandled errors raised by `bin/rails runner` scripts (Rails.error source
