@@ -59,3 +59,9 @@ See `.env.example`. `GITHUB_APP_ID`/`GITHUB_APP_INSTALLATION_ID`/`GITHUB_APP_PRI
 - Minitest with fixtures; `bin/rails test` (`COVERAGE=1` for SimpleCov)
 - Jobs mock the GitHub client using singleton methods
 - The engine has its own suite: `cd client && bundle exec rake test`
+
+## UI Design
+Load the `design-guidelines` skill (`.claude/skills/design-guidelines/`) before you build, change or review any UI. This file and the app's own style guide win where they differ.
+- Every element must earn its place; remove by default. Do not explain what the title and buttons already show.
+- One primary action per view. Labels are a verb plus an object ("Copy Link") and never rest on a feedback state ("Copied").
+- Fine print is one line, below the actions. Containers fit their content.
