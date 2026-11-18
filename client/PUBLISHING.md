@@ -33,8 +33,8 @@ The gem name `bug_reports_client` is unclaimed on rubygems.org (checked
 - [ ] Version bump in `lib/bug_reports_client/version.rb` (semver: breaking
       config/param-contract changes = major once past 1.0)
 - [ ] CHANGELOG.md entry
-- [ ] `bundle exec rake test` and `bundle exec rubocop` green (CI enforces
-      both via .github/workflows/client-ci.yml)
+- [ ] `bundle exec rake test` and `bundle exec rubocop` green (run locally;
+      there is no CI for them)
 - [ ] `gem build bug_reports_client.gemspec` - inspect the file list
       (`tar -tzf` the .gem) for anything unexpected; test/dummy must NOT ship
 - [ ] Tag `client-vX.Y.Z` and push the tag

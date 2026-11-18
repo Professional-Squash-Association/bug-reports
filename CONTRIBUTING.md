@@ -14,7 +14,8 @@ cd client && bundle install && bundle exec rake test        # engine
 
 Both are linted with RuboCop (Rails Omakase): `bin/rubocop` at the root,
 `bundle exec rubocop` in `client/`. The API is also scanned with
-`bin/brakeman`. CI runs all of these on pull requests.
+`bin/brakeman`. Run all of these locally before you open a pull request; there
+is no CI for them.
 
 ## Guidelines
 
