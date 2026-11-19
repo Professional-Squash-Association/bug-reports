@@ -45,7 +45,7 @@ Ownership: an app's token only permits reports whose `source` equals its ApiKey 
 
 ## Stack
 
-- Rails 8.1 (API-only), Ruby 3.3.10
+- Rails 8.1 (API-only), Ruby 3.3.14
 - PostgreSQL, Solid Trifecta (SolidQueue, SolidCache, SolidCable)
 - Octokit for GitHub API
 - Port: 3002
