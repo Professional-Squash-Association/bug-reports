@@ -23,6 +23,12 @@ production:
     username: bug_reports
     password: <%= ENV["BUG_REPORTS_DATABASE_PASSWORD"] %>
     url: <%= ENV["DATABASE_URL"] %>
+    # Fly Managed Postgres pools through PgBouncer in transaction mode, which cannot keep prepared
+    # statements, and Fly's docs ask clients to recycle connections within its 10-minute proxy drain.
+    idle_timeout: 30
+    reaping_frequency: 10
+    max_age: 600
+    prepared_statements: false
   cache:
     <<: *primary_production
     database: bug_reports_production_cache
