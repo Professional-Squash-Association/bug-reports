@@ -1,0 +1,6 @@
+#!/bin/sh
+# Rails' migration lock needs a direct connection; it cannot work through PgBouncer.
+set -e
+DATABASE_URL=$(printf '%s' "$DATABASE_URL" | sed 's/@pgbouncer\./@direct./')
+export DATABASE_URL
+exec ./bin/rails db:prepare
