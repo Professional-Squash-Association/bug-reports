@@ -4,7 +4,7 @@ description: >-
   Design rules for every project: the editing pass that makes UI read as made by a
   designer, not generated. The AI default is to add (explanations, extra actions, fine
   print, icons, longer labels); a designer subtracts until only what the user needs right
-  now is left. Covers copy, actions, button states, layout fit and polish, and links the
+  now is left. Covers copy (with a word budget), actions, button states, layout fit and polish, and links the
   unslop-ui visual-tells skill and Vercel's Web Interface Guidelines. Use whenever building,
   changing, reviewing or auditing any UI: a page, sheet, modal, dialog, form, empty state,
   component, native screen or email. Trigger even for "small" UI edits.
@@ -58,6 +58,33 @@ fine print below: "Anyone with the link can join. Expires in 7 days." Nothing el
 - Errors say what happened and what to do next, in one sentence.
 - Never talk down: no "Don't worry", "Oops", "Simply".
 
+### Less text (references/less-text-nightmail.png)
+
+**Count the words on the screen, then cut them by more than half.** A first draft is
+almost always two to six times too long. In the example, Nightmail cut its waitlist screen
+from 51 words to 15, "Check your email" from 67 to 15, and its price page from 203 to 34.
+Nothing the user needed was lost.
+
+What was cut, and the rule behind each cut:
+
+- **One screen, one state.** The "Check your email" screen still showed the whole waitlist
+  screen above it. When the user moves to the next step, the last step's copy goes.
+- **Do not write what a control already does.** "Nothing after a few minutes? Look in spam,
+  or check the address" was cut because "Send again in 1:00" and "Change address" already
+  say it.
+- **Hide the second path behind one short label.** The sign-in form for invited users
+  became "Already invited?", which opens the form. The method paragraph on the price page
+  became "How we compared +". The detail is still there for the few who look for it.
+- **Do not repeat what the user just typed** unless they must check it. The waitlist screen
+  dropped the email address; "Check your email" kept it, because a typo there is the main
+  reason no email comes.
+- **Do not restate the heading in the body.** "Full for now. Join the waitlist and we'll
+  email you" under a "Join the waitlist" button says nothing new.
+- **No bold lead-ins and no "how it works" lines** ("The link works once, for 30
+  minutes"). If a limit matters, show it when the user hits it.
+- **Short status screens get about 15 words.** Heading, one sentence, the actions. A
+  reading page (pricing, docs) keeps its facts (the table) and cuts the prose around them.
+
 ## Actions
 
 - **One primary action per view.** One secondary at most in a small surface (sheet,
@@ -108,6 +135,7 @@ review a web UI.
 Before you say UI work is done, do this edit pass, in order:
 
 1. Delete every sentence that repeats the title, a label or another sentence.
+   Count the words before and after; if you did not cut about half, cut again.
 2. Delete every action the user does not need on this screen right now.
 3. Shorten every label to verb plus object.
 4. Check that no button rests on a feedback state.
